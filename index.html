@@ -21,6 +21,10 @@
     --terracotta:#B5563C;
     --card:#FFFFFF;
     --line:#D9D0B8;
+    --meal-am:#C98A2C;
+    --meal-noon:#B5563C;
+    --meal-pm:#35586B;
+    --meal-snack:#7D5486;
     --font-display:'Songti TC','Noto Serif TC',serif;
     --font-body:-apple-system,'PingFang TC','Helvetica Neue',sans-serif;
     --font-mono:ui-monospace,'SF Mono',Menlo,monospace;
@@ -45,9 +49,9 @@
   }
   .header-row{display:flex;justify-content:space-between;align-items:baseline;}
   .app-title{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:1px;color:var(--green-deep);}
-  .today-date{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);}
+  .today-date{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);margin-bottom:8px;}
   .ledger{
-    margin-top:10px;background:var(--card);border:1px solid var(--line);
+    margin-bottom:16px;background:var(--card);border:1px solid var(--line);
     border-radius:10px;padding:10px 14px;
   }
   .ledger-row{
@@ -75,6 +79,7 @@
     width:56px;height:56px;border-radius:50%;
     background:var(--green);color:#fff;border:none;font-size:26px;
     box-shadow:0 6px 16px rgba(31,77,54,0.35);z-index:20;
+    display:flex;align-items:center;justify-content:center;padding:0;line-height:1;
   }
   @media(max-width:680px){ .fab{right:20px;} }
 
@@ -90,14 +95,15 @@
     padding:12px 14px;margin-bottom:10px;position:relative;
   }
   .card-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
-  .badge{
+  .meal-badge{
     font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;color:#fff;
     font-family:var(--font-body);
   }
-  .badge.外食{background:var(--terracotta);}
-  .badge.超商{background:var(--mustard);}
-  .badge.自煮{background:var(--green);}
-  .meal-tag{font-size:11px;color:var(--ink-soft);font-family:var(--font-mono);}
+  .meal-badge.早餐{background:var(--meal-am);}
+  .meal-badge.午餐{background:var(--meal-noon);}
+  .meal-badge.晚餐{background:var(--meal-pm);}
+  .meal-badge.點心{background:var(--meal-snack);}
+  .source-tag{font-size:11px;color:var(--ink-soft);font-family:var(--font-mono);}
   .card-name{font-size:16px;font-weight:700;margin:2px 0 2px;}
   .card-note{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-bottom:4px;white-space:pre-wrap;}
   .macro-row{
@@ -139,6 +145,29 @@
   .history-date .d-info{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);}
   .history-date .d-date{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--ink);}
   .history-detail{margin:-2px 0 12px;padding:0 4px;}
+  .history-subheading{font-family:var(--font-display);font-size:15px;color:var(--ink-soft);margin:20px 0 10px;padding-top:12px;border-top:1px dashed var(--line);}
+
+  .week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .week-arrow{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:16px;color:var(--ink-soft);flex-shrink:0;}
+  .week-arrow:disabled{opacity:0.3;}
+  .day-chip.future{opacity:0.35;}
+  .week-range{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);}
+  .week-strip{display:flex;gap:6px;margin-bottom:16px;touch-action:pan-y;}
+  .day-chip{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 2px 10px;position:relative;
+    font-family:var(--font-body);color:var(--ink-soft);min-width:0;
+  }
+  .day-chip .dc-wd{font-size:10px;}
+  .day-chip .dc-num{font-size:15px;font-weight:700;color:var(--ink);}
+  .day-chip .dc-dot{width:5px;height:5px;border-radius:50%;background:var(--green);position:absolute;bottom:4px;left:50%;transform:translateX(-50%);}
+  .day-chip.is-today{border-color:var(--green);border-width:2px;}
+  .day-chip.sel{background:var(--green);border-color:var(--green);}
+  .day-chip.sel .dc-wd{color:rgba(255,255,255,0.85);}
+  .day-chip.sel .dc-num{color:#fff;}
+  .day-chip.sel .dc-dot{background:#fff;}
+  #selectedDayDetail:empty{margin:0;}
+  #selectedDayDetail{margin-bottom:4px;}
 
   .settings-item{
     background:var(--card);border:1px solid var(--line);border-radius:10px;
@@ -153,13 +182,13 @@
 
   nav.tabbar{
     flex-shrink:0;display:flex;background:var(--card);border-top:1px solid var(--line);
-    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    padding:8px 4px calc(8px + env(safe-area-inset-bottom));
   }
   nav.tabbar button{
     flex:1;background:none;border:none;display:flex;flex-direction:column;
-    align-items:center;gap:2px;font-size:10px;color:var(--ink-soft);padding:4px 0;font-family:var(--font-body);
+    align-items:center;gap:2px;font-size:9.5px;color:var(--ink-soft);padding:4px 0;font-family:var(--font-body);
   }
-  nav.tabbar button .ic{font-size:20px;}
+  nav.tabbar button .ic{font-size:19px;}
   nav.tabbar button.active{color:var(--green-deep);font-weight:700;}
 
   /* modal */
@@ -168,16 +197,21 @@
     display:flex;align-items:flex-end;justify-content:center;
   }
   .sheet{
-    background:var(--paper);width:100%;max-width:640px;max-height:88vh;overflow-y:auto;
+    background:var(--paper);width:100%;max-width:640px;max-height:88vh;overflow-y:auto;overflow-x:hidden;
     border-radius:18px 18px 0 0;padding:18px 18px calc(24px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling:touch;
   }
   .sheet h3{font-family:var(--font-display);margin:0 0 14px;font-size:19px;}
-  .field{margin-bottom:14px;}
+  .field{margin-bottom:14px;max-width:100%;}
   .field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:5px;font-weight:600;}
-  .field input[type=text],.field input[type=number],.field input[type=date],.field textarea{
+  .field input[type=text],.field input[type=number],.field textarea, .field select{
     width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
-    font-size:15px;font-family:var(--font-body);background:#fff;color:var(--ink);
+    font-size:15px;font-family:var(--font-body);background:#fff;color:var(--ink);box-sizing:border-box;
+  }
+  .field input[type=date],.field input[type=time]{
+    width:100%;max-width:100%;padding:10px 6px;border:1px solid var(--line);border-radius:8px;
+    font-size:14px;font-family:var(--font-body);background:#fff;color:var(--ink);box-sizing:border-box;
+    -webkit-appearance:none;appearance:none;display:block;
   }
   .field textarea{resize:vertical;min-height:60px;font-family:var(--font-body);}
   .pillrow{display:flex;gap:8px;flex-wrap:wrap;}
@@ -194,12 +228,61 @@
   .btn-save{background:var(--green);color:#fff;}
   .btn-cancel{background:var(--paper-alt);color:var(--ink);}
 
+  .mode-hint{font-size:11px;color:var(--ink-soft);margin:-8px 0 14px;line-height:1.5;}
+
   .mealpick-overlay{position:fixed;inset:0;background:rgba(35,40,31,0.45);z-index:60;display:flex;align-items:center;justify-content:center;}
-  .mealpick{background:var(--paper);border-radius:14px;padding:18px;width:280px;}
+  .mealpick{background:var(--paper);border-radius:14px;padding:18px;width:290px;}
   .mealpick h4{margin:0 0 12px;font-family:var(--font-display);font-size:16px;}
   .mealpick .pillrow{margin-bottom:14px;}
   .mealpick button.cancel{width:100%;padding:10px;border:none;background:var(--paper-alt);border-radius:8px;color:var(--ink-soft);}
+  .mealpick .servings-field{margin-bottom:14px;text-align:left;}
+  .mealpick .servings-field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;}
+  .mealpick .servings-field input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:15px;font-family:var(--font-body);}
+  .mealpick .confirm-btn{width:100%;padding:11px;border:none;background:var(--green);color:#fff;border-radius:8px;font-size:14px;font-weight:700;margin-bottom:8px;}
 
+  .checkbox-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .checkbox-row input[type=checkbox]{width:18px;height:18px;flex-shrink:0;}
+  .checkbox-row label{font-size:13px;color:var(--ink);font-weight:600;margin:0;}
+
+  .pick-menu-btn{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    width:100%;padding:11px;border-radius:10px;border:1px dashed var(--green);
+    background:rgba(47,111,78,0.06);color:var(--green-deep);font-size:14px;font-weight:600;
+    margin-bottom:14px;
+  }
+  .picker-overlay{position:fixed;inset:0;background:rgba(35,40,31,0.45);z-index:65;display:flex;align-items:flex-end;justify-content:center;}
+  .picker-sheet{background:var(--paper);width:100%;max-width:640px;max-height:75vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:18px 18px calc(20px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;}
+  .picker-sheet h4{font-family:var(--font-display);margin:0 0 12px;font-size:17px;}
+  .picker-item{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:8px;
+  }
+  .picker-item .pi-name{font-weight:700;font-size:14px;}
+  .picker-item .pi-sub{font-size:11px;color:var(--ink-soft);font-family:var(--font-mono);margin-top:2px;}
+  .picker-item button{background:var(--green);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;flex-shrink:0;}
+  .picker-cancel{width:100%;padding:10px;border:none;background:var(--paper-alt);border-radius:8px;color:var(--ink-soft);margin-top:4px;}
+
+  .live-total{
+    background:var(--paper-alt);border-radius:10px;padding:10px 12px;margin-bottom:14px;
+    font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);
+  }
+  .live-total b{color:var(--ink);}
+  .store-line{font-size:12px;color:var(--ink-soft);margin:-2px 0 4px;}
+  .portion-tag{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);}
+
+  .profile-latest{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin-bottom:16px;
+  }
+  .profile-latest .pl-date{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin-bottom:8px;}
+  .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .profile-stat{background:var(--paper-alt);border-radius:8px;padding:8px 10px;}
+  .profile-stat .ps-label{font-size:11px;color:var(--ink-soft);}
+  .profile-stat .ps-value{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink);}
+  .profile-stat .ps-delta{font-size:11px;font-family:var(--font-mono);margin-left:4px;}
+  .delta-up{color:var(--terracotta);}
+  .delta-down{color:var(--green-deep);}
+  .method-tag{font-size:10px;color:var(--ink-soft);background:var(--paper-alt);padding:1px 6px;border-radius:10px;margin-left:6px;}
   .toast{
     position:fixed;left:50%;bottom:110px;transform:translateX(-50%);
     background:var(--ink);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;
@@ -213,13 +296,13 @@
   <header>
     <div class="header-row">
       <div class="app-title">飲食紀錄</div>
-      <div class="today-date" id="todayDateLabel"></div>
     </div>
-    <div class="ledger" id="ledgerToday"></div>
   </header>
 
   <main>
     <section class="section active" id="tab-today">
+      <div class="today-date" id="todayDateLabel"></div>
+      <div class="ledger" id="ledgerToday"></div>
       <button class="copy-btn" id="copyTodayBtn">📋 複製今日紀錄（貼給 AI 講評）</button>
       <div id="todayList"></div>
     </section>
@@ -230,14 +313,24 @@
       <div id="menuList"></div>
     </section>
 
+    <section class="section" id="tab-profile">
+      <div class="profile-latest" id="profileLatest"></div>
+      <div id="profileList"></div>
+    </section>
+
     <section class="section" id="tab-history">
-      <div id="historyList"></div>
+      <div id="weekStripArea"></div>
+      <div id="selectedDayDetail"></div>
+      <button class="copy-btn ghost" id="toggleFullHistoryBtn">📚 顯示完整歷史紀錄</button>
+      <div id="fullHistoryWrap" style="display:none;">
+        <div id="historyList"></div>
+      </div>
     </section>
 
     <section class="section" id="tab-settings">
       <div class="settings-item">
         <div class="label">📦 匯出備份</div>
-        <div class="desc">把所有紀錄與常用菜單存成一個 JSON 檔，建議定期匯出存到雲端硬碟，避免資料遺失。</div>
+        <div class="desc">把所有紀錄、常用菜單與身形資料存成一個 JSON 檔，建議定期匯出存到雲端硬碟，避免資料遺失。</div>
         <button id="exportBtn">下載備份檔</button>
       </div>
       <div class="settings-item">
@@ -256,7 +349,7 @@
       </div>
       <div class="settings-item">
         <div class="label">🗑 清空所有資料</div>
-        <div class="desc">會刪除所有飲食紀錄與常用菜單，此動作無法復原，請先匯出備份。</div>
+        <div class="desc">會刪除所有飲食紀錄、常用菜單與身形資料，此動作無法復原，請先匯出備份。</div>
         <button id="clearAllBtn" style="background:var(--terracotta);">清空資料</button>
       </div>
     </section>
@@ -267,12 +360,14 @@
   <nav class="tabbar">
     <button data-tab="today" class="active"><span class="ic">📝</span>今日</button>
     <button data-tab="menu"><span class="ic">⭐</span>常用</button>
+    <button data-tab="profile"><span class="ic">📏</span>身形</button>
     <button data-tab="history"><span class="ic">📖</span>歷史</button>
     <button data-tab="settings"><span class="ic">⚙️</span>設定</button>
   </nav>
 </div>
 
 <div id="modalRoot"></div>
+<div id="pickerRoot"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -280,20 +375,75 @@
   "use strict";
 
   var MEAL_TYPES = ["早餐","午餐","晚餐","點心"];
-  var SOURCE_TYPES = ["外食","超商","自煮"];
+  var SOURCE_TYPES = ["外食","自煮","包裝食品"];
+  var UNIT_OPTIONS = ["ml","g","份","顆","片","包","碗","匙"];
 
-  var state = { entries: [], menu: [] };
+  var state = { entries: [], menu: [], profiles: [] };
 
   function loadState(){
     try{ state.entries = JSON.parse(localStorage.getItem('ft_entries')||'[]'); }catch(e){ state.entries = []; }
     try{ state.menu = JSON.parse(localStorage.getItem('ft_menu')||'[]'); }catch(e){ state.menu = []; }
+    try{ state.profiles = JSON.parse(localStorage.getItem('ft_profiles')||'[]'); }catch(e){ state.profiles = []; }
+    migrateOldRecords();
   }
   function saveEntries(){ localStorage.setItem('ft_entries', JSON.stringify(state.entries)); }
   function saveMenu(){ localStorage.setItem('ft_menu', JSON.stringify(state.menu)); }
+  function saveProfiles(){ localStorage.setItem('ft_profiles', JSON.stringify(state.profiles)); }
+
+  // 把舊版資料格式轉換成新版(portionMode: total/ratio)，避免升級後舊紀錄消失
+  function migrateOldRecords(){
+    var changedEntries = false, changedMenu = false;
+    state.entries.forEach(function(e){
+      if(e.source === '超商'){ e.source = '包裝食品'; changedEntries = true; }
+    });
+    state.menu.forEach(function(m){
+      if(m.source === '超商'){ m.source = '包裝食品'; changedMenu = true; }
+    });
+    state.entries.forEach(function(e){
+      if(e.portionMode) return;
+      if(e.caloriesPerServing!==undefined){
+        e.portionMode = 'ratio';
+        e.refAmount = 1;
+        e.refUnit = e.portionLabel || '份';
+        e.caloriesPerRef = e.caloriesPerServing; e.proteinPerRef = e.proteinPerServing;
+        e.carbPerRef = e.carbPerServing; e.fatPerRef = e.fatPerServing;
+        e.actualAmount = (e.servings!=null) ? e.servings : 1;
+      } else {
+        e.portionMode = 'total';
+        e.totalCalories = (e.calories!=null)?e.calories:null;
+        e.totalProtein = (e.protein!=null)?e.protein:null;
+        e.totalCarb = (e.carb!=null)?e.carb:null;
+        e.totalFat = (e.fat!=null)?e.fat:null;
+      }
+      ['calories','protein','carb','fat','caloriesPerServing','proteinPerServing','carbPerServing','fatPerServing','servings','portionLabel'].forEach(function(k){ delete e[k]; });
+      changedEntries = true;
+    });
+    state.menu.forEach(function(m){
+      if(m.portionMode) return;
+      if(m.caloriesPerServing!==undefined){
+        m.portionMode = 'ratio';
+        m.refAmount = 1;
+        m.refUnit = m.portionLabel || '份';
+        m.caloriesPerRef = m.caloriesPerServing; m.proteinPerRef = m.proteinPerServing;
+        m.carbPerRef = m.carbPerServing; m.fatPerRef = m.fatPerServing;
+      } else {
+        m.portionMode = 'total';
+        m.totalCalories = (m.calories!=null)?m.calories:null;
+        m.totalProtein = (m.protein!=null)?m.protein:null;
+        m.totalCarb = (m.carb!=null)?m.carb:null;
+        m.totalFat = (m.fat!=null)?m.fat:null;
+      }
+      ['calories','protein','carb','fat','caloriesPerServing','proteinPerServing','carbPerServing','fatPerServing','portionLabel'].forEach(function(k){ delete m[k]; });
+      changedMenu = true;
+    });
+    if(changedEntries) saveEntries();
+    if(changedMenu) saveMenu();
+  }
 
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
   function pad(n){ return n<10?'0'+n:''+n; }
   function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function nowTimeStr(){ var d=new Date(); return pad(d.getHours())+':'+pad(d.getMinutes()); }
   function escapeHtml(s){
     if(s===undefined||s===null) return '';
     return String(s).replace(/[&<>"']/g, function(c){
@@ -305,6 +455,11 @@
     var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
     var wd = ['日','一','二','三','四','五','六'][d.getDay()];
     return parts[0]+'/'+parts[1]+'/'+parts[2]+' (週'+wd+')';
+  }
+  function fmtNum(n){
+    if(n===null || n===undefined || isNaN(n)) return '';
+    var r = Math.round(n*10)/10;
+    return String(r);
   }
 
   var toastTimer = null;
@@ -355,30 +510,44 @@
   }
 
   function mealOrder(m){ var i = MEAL_TYPES.indexOf(m); return i<0?99:i; }
+  function showStore(src){ return src==='外食' || src==='包裝食品'; }
 
-  function sumField(list, key){
+  // 這筆紀錄某個營養素的「總量」。total模式直接讀總量欄位；ratio模式用 基準量對應營養 x (實際攝取量/基準量) 計算。
+  function totalFor(e, key){
+    if(e.portionMode === 'total'){
+      var cap = key.charAt(0).toUpperCase()+key.slice(1);
+      var v = e['total'+cap];
+      return (v===null||v===undefined||v==='') ? null : Number(v);
+    }
+    var per = e[key+'PerRef'];
+    if(per===null || per===undefined || per==='') return null;
+    var ref = Number(e.refAmount);
+    if(!ref){ return null; }
+    var act = (e.actualAmount!==undefined && e.actualAmount!==null && e.actualAmount!=='') ? Number(e.actualAmount) : ref;
+    return Number(per) * (act/ref);
+  }
+  function sumTotal(list, key){
     var total = 0, count = 0;
     list.forEach(function(e){
-      if(e[key] !== undefined && e[key] !== null && e[key] !== ''){
-        total += Number(e[key]) || 0; count++;
-      }
+      var t = totalFor(e, key);
+      if(t!==null){ total += t; count++; }
     });
-    return {total: total, count: count};
+    return {total: Math.round(total*10)/10, count: count};
   }
 
   // ---------- Ledger (header) ----------
   function renderLedger(){
     document.getElementById('todayDateLabel').textContent = fmtDateLabel(todayStr());
     var todays = state.entries.filter(function(e){ return e.date === todayStr(); });
-    var kcal = sumField(todays,'calories');
-    var protein = sumField(todays,'protein');
-    var carb = sumField(todays,'carb');
-    var fat = sumField(todays,'fat');
+    var kcal = sumTotal(todays,'calories');
+    var protein = sumTotal(todays,'protein');
+    var carb = sumTotal(todays,'carb');
+    var fat = sumTotal(todays,'fat');
     var html = '';
-    html += '<div class="ledger-row"><span>蛋白質</span><span>'+protein.total+' g</span></div>';
-    html += '<div class="ledger-row"><span>碳水</span><span>'+carb.total+' g</span></div>';
-    html += '<div class="ledger-row"><span>脂肪</span><span>'+fat.total+' g</span></div>';
-    html += '<div class="ledger-row total"><span>今日熱量</span><span>'+kcal.total+' kcal</span></div>';
+    html += '<div class="ledger-row"><span>蛋白質</span><span>'+fmtNum(protein.total)+' g</span></div>';
+    html += '<div class="ledger-row"><span>碳水</span><span>'+fmtNum(carb.total)+' g</span></div>';
+    html += '<div class="ledger-row"><span>脂肪</span><span>'+fmtNum(fat.total)+' g</span></div>';
+    html += '<div class="ledger-row total"><span>今日熱量</span><span>'+fmtNum(kcal.total)+' kcal</span></div>';
     html += '<div class="ledger-note">共 '+todays.length+' 筆紀錄，'+kcal.count+' 筆有熱量資料</div>';
     document.getElementById('ledgerToday').innerHTML = html;
   }
@@ -395,21 +564,35 @@
     el.innerHTML = list.map(entryCardHtml).join('');
   }
 
+  function sourceLabel(src){ return src==='自煮' ? '🍳 自煮' : src; }
+
   function entryCardHtml(e){
+    var kcalT = totalFor(e,'calories'), proT = totalFor(e,'protein'), carbT = totalFor(e,'carb'), fatT = totalFor(e,'fat');
     var macro = [];
-    if(e.calories!=='' && e.calories!=null) macro.push('<b>'+e.calories+'</b> kcal');
-    if(e.protein!=='' && e.protein!=null) macro.push('蛋白 <b>'+e.protein+'</b>g');
-    if(e.carb!=='' && e.carb!=null) macro.push('碳水 <b>'+e.carb+'</b>g');
-    if(e.fat!=='' && e.fat!=null) macro.push('脂肪 <b>'+e.fat+'</b>g');
-    var macroHtml = macro.length ? '<div class="macro-row">'+macro.join(' ｜ ')+'</div>' : '<div class="macro-row" style="opacity:.6">未填寫營養資料</div>';
+    if(kcalT!==null) macro.push('<b>'+fmtNum(kcalT)+'</b> kcal');
+    if(proT!==null) macro.push('蛋白 <b>'+fmtNum(proT)+'</b>g');
+    if(carbT!==null) macro.push('碳水 <b>'+fmtNum(carbT)+'</b>g');
+    if(fatT!==null) macro.push('脂肪 <b>'+fmtNum(fatT)+'</b>g');
+    var ratioNote = '';
+    if(e.portionMode==='ratio' && e.refAmount){
+      var act = (e.actualAmount!==undefined && e.actualAmount!==null && e.actualAmount!=='') ? Number(e.actualAmount) : Number(e.refAmount);
+      if(act !== Number(e.refAmount)){
+        ratioNote = '<span class="servings-note" style="font-size:11px;color:var(--ink-soft);margin-left:6px;">(每'+fmtNum(e.refAmount)+e.refUnit+' → 本次 '+fmtNum(act)+e.refUnit+')</span>';
+      }
+    }
+    var macroHtml = macro.length
+      ? '<div class="macro-row">'+macro.join(' ｜ ')+ratioNote+'</div>'
+      : '<div class="macro-row" style="opacity:.6">未填寫營養資料</div>';
+    var storeLine = e.storeName ? '<div class="store-line">🏪 '+escapeHtml(e.storeName)+'</div>' : '';
     return '' +
       '<div class="card">' +
         '<div class="card-actions">' +
           '<button class="icon-btn" onclick="App.editEntry(\''+e.id+'\')">✎</button>' +
           '<button class="icon-btn" onclick="App.deleteEntry(\''+e.id+'\')">✕</button>' +
         '</div>' +
-        '<div class="card-top"><span class="badge '+e.source+'">'+e.source+'</span><span class="meal-tag">'+e.mealType+'</span></div>' +
+        '<div class="card-top"><span class="meal-badge '+e.mealType+'">'+e.mealType+'</span><span class="source-tag">'+sourceLabel(e.source)+'</span></div>' +
         '<div class="card-name">'+escapeHtml(e.name||'（未命名）')+'</div>' +
+        storeLine +
         (e.notes? '<div class="card-note">'+escapeHtml(e.notes)+'</div>' : '') +
         macroHtml +
         (e.photo? '<img class="card-photo" src="'+e.photo+'">' : '') +
@@ -427,16 +610,22 @@
     renderInspire();
   }
 
+  function menuNutritionSummary(m){
+    if(m.portionMode==='total'){
+      return m.totalCalories!=null ? ('<b>'+fmtNum(m.totalCalories)+'</b> kcal（固定總量）') : '未填熱量';
+    }
+    return m.caloriesPerRef!=null ? ('<b>'+fmtNum(m.caloriesPerRef)+'</b> kcal ／ 每'+fmtNum(m.refAmount)+(m.refUnit||'')) : '未填熱量';
+  }
+
   function menuCardHtml(m){
-    var sub = [];
-    if(m.calories) sub.push(m.calories+' kcal');
-    sub.push(m.source);
+    var storeLine = m.storeName ? '<div class="store-line">🏪 '+escapeHtml(m.storeName)+'</div>' : '';
     return '' +
       '<div class="card menu-card">' +
         '<div class="info">' +
-          '<div class="card-top"><span class="badge '+m.source+'">'+m.source+'</span></div>' +
+          '<div class="card-top"><span class="source-tag">'+sourceLabel(m.source)+'</span></div>' +
           '<div class="card-name">'+escapeHtml(m.name||'（未命名）')+'</div>' +
-          '<div class="macro-row">'+ (m.calories? '<b>'+m.calories+'</b> kcal' : '未填熱量') +'</div>' +
+          storeLine +
+          '<div class="macro-row">'+ menuNutritionSummary(m) +'</div>' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">' +
           '<button class="add-quick" onclick="App.quickAddFromMenu(\''+m.id+'\')">加入今天</button>' +
@@ -460,7 +649,7 @@
       '<div class="inspire-card">' +
         '<div class="inspire-label">下一餐靈感</div>' +
         '<div class="inspire-name">'+escapeHtml(m.name||'（未命名）')+'</div>' +
-        '<div style="font-size:13px;opacity:.85">'+m.source+(m.calories? ' ・ '+m.calories+' kcal':'')+'</div>' +
+        '<div style="font-size:13px;opacity:.85">'+sourceLabel(m.source)+(m.storeName? ' ・ '+escapeHtml(m.storeName):'')+'</div>' +
         '<div class="inspire-actions">' +
           '<button class="primary" onclick="App.quickAddFromMenu(\''+m.id+'\')">加入今天</button>' +
           '<button class="secondary" onclick="App.rerollInspire()">換一個</button>' +
@@ -468,7 +657,263 @@
       '</div>';
   }
 
+  // ---------- Profile (身形) tab ----------
+  function computeBMR(weight, height, age, sex){
+    if(!weight || !height || !age) return null;
+    var base = 10*Number(weight) + 6.25*Number(height) - 5*Number(age);
+    return Math.round(sex==='女' ? base-161 : base+5);
+  }
+  function sortedProfiles(){
+    return state.profiles.slice().sort(function(a,b){
+      var ka = a.date+' '+(a.time||''), kb = b.date+' '+(b.time||'');
+      return ka<kb ? 1 : (ka>kb ? -1 : 0);
+    });
+  }
+  function profileDelta(cur, prev, key){
+    if(!prev || cur[key]==null || prev[key]==null) return '';
+    var d = Math.round((Number(cur[key])-Number(prev[key]))*10)/10;
+    if(d===0) return '<span class="ps-delta">（持平）</span>';
+    var cls = d>0 ? 'delta-up' : 'delta-down';
+    var arrow = d>0 ? '↑' : '↓';
+    return '<span class="ps-delta '+cls+'">'+arrow+Math.abs(d)+'</span>';
+  }
+  function renderProfile(){
+    var list = sortedProfiles();
+    var box = document.getElementById('profileLatest');
+    if(list.length===0){
+      box.innerHTML = '<div class="empty-state" style="padding:20px 10px;"><span class="big">📏</span>還沒有身形紀錄<br>點右下角「＋」新增第一筆</div>';
+      document.getElementById('profileList').innerHTML = '';
+      return;
+    }
+    var latest = list[0], prev = list[1];
+    box.innerHTML = '' +
+      '<div class="pl-date">最新紀錄：'+fmtDateLabel(latest.date)+' '+(latest.time||'')+'</div>' +
+      '<div class="profile-grid">' +
+        '<div class="profile-stat"><div class="ps-label">體重</div><div class="ps-value">'+(latest.weight!=null?fmtNum(latest.weight)+' kg':'—')+profileDelta(latest,prev,'weight')+'</div></div>' +
+        '<div class="profile-stat"><div class="ps-label">體脂</div><div class="ps-value">'+(latest.bodyFat!=null?fmtNum(latest.bodyFat)+' %':'—')+profileDelta(latest,prev,'bodyFat')+'</div></div>' +
+        '<div class="profile-stat"><div class="ps-label">身高</div><div class="ps-value">'+(latest.height!=null?fmtNum(latest.height)+' cm':'—')+'</div></div>' +
+        '<div class="profile-stat"><div class="ps-label">基礎代謝</div><div class="ps-value">'+(latest.bmrValue!=null?fmtNum(latest.bmrValue)+' kcal':'—')+'<span class="method-tag">'+(latest.bmrMethod==='auto'?'自動':'手動')+'</span></div></div>' +
+      '</div>';
+    document.getElementById('profileList').innerHTML = list.map(function(p, idx){ return profileCardHtml(p, list[idx+1]); }).join('');
+  }
+  function profileCardHtml(p, prev){
+    var parts = [];
+    if(p.weight!=null) parts.push('體重 <b>'+fmtNum(p.weight)+'</b>kg'+profileDelta(p,prev,'weight'));
+    if(p.bodyFat!=null) parts.push('體脂 <b>'+fmtNum(p.bodyFat)+'</b>%'+profileDelta(p,prev,'bodyFat'));
+    if(p.bmrValue!=null) parts.push('BMR <b>'+fmtNum(p.bmrValue)+'</b>kcal<span class="method-tag">'+(p.bmrMethod==='auto'?'自動':'手動')+'</span>');
+    return '' +
+      '<div class="card">' +
+        '<div class="card-actions">' +
+          '<button class="icon-btn" onclick="App.editProfile(\''+p.id+'\')">✎</button>' +
+          '<button class="icon-btn" onclick="App.deleteProfile(\''+p.id+'\')">✕</button>' +
+        '</div>' +
+        '<div class="source-tag">'+fmtDateLabel(p.date)+' '+(p.time||'')+'</div>' +
+        '<div class="macro-row" style="margin-top:8px;">'+parts.join(' ｜ ')+'</div>' +
+        (p.note? '<div class="card-note" style="margin-top:6px;">'+escapeHtml(p.note)+'</div>' : '') +
+      '</div>';
+  }
+
+  function openProfileModal(editId){
+    var editing = editId ? state.profiles.find(function(x){return x.id===editId;}) : null;
+    var list = sortedProfiles();
+    var latest = list[0];
+    var height = editing ? editing.height : (latest? latest.height : '');
+    var age = editing ? editing.age : (latest? latest.age : '');
+    var sex = editing ? editing.sex : (latest? latest.sex : '男');
+    var bmrMethod = editing ? (editing.bmrMethod||'auto') : 'auto';
+
+    var root = document.getElementById('modalRoot');
+    root.innerHTML = '' +
+      '<div class="overlay" id="pfOverlay">' +
+        '<div class="sheet">' +
+          '<h3>'+(editing?'編輯身形紀錄':'新增身形紀錄')+'</h3>' +
+          '<div class="grid2">' +
+            '<div class="field"><label>日期</label><input type="date" id="p_date" value="'+(editing?editing.date:todayStr())+'"></div>' +
+            '<div class="field"><label>時間</label><input type="time" id="p_time" value="'+(editing?editing.time:nowTimeStr())+'"></div>' +
+          '</div>' +
+          '<div class="grid2">' +
+            '<div class="field"><label>體重 kg</label><input type="number" step="0.1" inputmode="decimal" id="p_weight" value="'+(editing&&editing.weight!=null?editing.weight:'')+'"></div>' +
+            '<div class="field"><label>體脂 %（選填）</label><input type="number" step="0.1" inputmode="decimal" id="p_bodyfat" value="'+(editing&&editing.bodyFat!=null?editing.bodyFat:'')+'"></div>' +
+          '</div>' +
+          '<div class="grid2">' +
+            '<div class="field"><label>身高 cm</label><input type="number" step="0.1" inputmode="decimal" id="p_height" value="'+height+'"></div>' +
+            '<div class="field"><label>年齡</label><input type="number" step="1" inputmode="numeric" id="p_age" value="'+age+'"></div>' +
+          '</div>' +
+          '<div class="field"><label>性別（計算基礎代謝用）</label><div class="pillrow" id="p_sex">' +
+            ['男','女'].map(function(s){ return '<button type="button" class="pill'+(s===sex?' sel':'')+'" data-val="'+s+'">'+s+'</button>'; }).join('') +
+          '</div></div>' +
+          '<div class="field"><label>基礎代謝率(BMR)取得方式</label><div class="pillrow" id="p_bmrMethod">' +
+            '<button type="button" class="pill'+(bmrMethod==='auto'?' sel':'')+'" data-val="auto">自動估算</button>' +
+            '<button type="button" class="pill'+(bmrMethod==='manual'?' sel':'')+'" data-val="manual">手動輸入</button>' +
+          '</div></div>' +
+          '<div class="field" id="p_bmrAutoWrap" style="display:'+(bmrMethod==='auto'?'block':'none')+';">' +
+            '<div class="live-total" id="p_bmrAutoBox">請先填體重／身高／年齡／性別</div>' +
+          '</div>' +
+          '<div class="field" id="p_bmrManualWrap" style="display:'+(bmrMethod==='manual'?'block':'none')+';">' +
+            '<label>BMR（kcal，來自體脂機或健檢報告）</label><input type="number" step="1" inputmode="numeric" id="p_bmrManual" value="'+(editing&&editing.bmrMethod==='manual'&&editing.bmrValue!=null?editing.bmrValue:'')+'">' +
+          '</div>' +
+          '<div class="field"><label>備註（選填）</label><textarea id="p_note" placeholder="例如：早上空腹量">'+escapeHtml(editing?editing.note:'')+'</textarea></div>' +
+          '<div class="sheet-actions">' +
+            '<button class="btn-cancel" id="p_cancel">取消</button>' +
+            '<button class="btn-save" id="p_save">儲存</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    var pillSex = document.getElementById('p_sex');
+    pillSex.querySelectorAll('.pill').forEach(function(btn){
+      btn.onclick = function(){ pillSex.querySelectorAll('.pill').forEach(function(b){b.classList.remove('sel');}); btn.classList.add('sel'); updateBmrAuto(); };
+    });
+    var pillMethod = document.getElementById('p_bmrMethod');
+    pillMethod.querySelectorAll('.pill').forEach(function(btn){
+      btn.onclick = function(){
+        pillMethod.querySelectorAll('.pill').forEach(function(b){b.classList.remove('sel');});
+        btn.classList.add('sel');
+        var m = btn.getAttribute('data-val');
+        document.getElementById('p_bmrAutoWrap').style.display = m==='auto' ? 'block' : 'none';
+        document.getElementById('p_bmrManualWrap').style.display = m==='manual' ? 'block' : 'none';
+      };
+    });
+    function updateBmrAuto(){
+      var w = parseFloat(document.getElementById('p_weight').value);
+      var h = parseFloat(document.getElementById('p_height').value);
+      var a = parseFloat(document.getElementById('p_age').value);
+      var s = pillSex.querySelector('.pill.sel').getAttribute('data-val');
+      var bmr = computeBMR(w,h,a,s);
+      document.getElementById('p_bmrAutoBox').innerHTML = bmr!=null ? ('估算 BMR：<b>'+bmr+'</b> kcal／天（Mifflin-St Jeor 公式）') : '請先填體重／身高／年齡／性別';
+    }
+    ['p_weight','p_height','p_age'].forEach(function(id){ document.getElementById(id).addEventListener('input', updateBmrAuto); });
+    updateBmrAuto();
+
+    document.getElementById('p_cancel').onclick = closeModal;
+    document.getElementById('pfOverlay').onclick = function(e){ if(e.target.id==='pfOverlay') closeModal(); };
+    document.getElementById('p_save').onclick = function(){
+      var weight = document.getElementById('p_weight').value;
+      var bodyFat = document.getElementById('p_bodyfat').value;
+      var heightV = document.getElementById('p_height').value;
+      var ageV = document.getElementById('p_age').value;
+      var sexV = pillSex.querySelector('.pill.sel').getAttribute('data-val');
+      var methodV = pillMethod.querySelector('.pill.sel').getAttribute('data-val');
+      if(weight===''){ toast('請至少填寫體重'); return; }
+      var bmrValue = null;
+      if(methodV==='auto'){ bmrValue = computeBMR(parseFloat(weight),parseFloat(heightV),parseFloat(ageV),sexV); }
+      else { var mv = document.getElementById('p_bmrManual').value; bmrValue = mv===''? null : Number(mv); }
+
+      var obj = {
+        id: editing ? editing.id : uid(),
+        date: document.getElementById('p_date').value || todayStr(),
+        time: document.getElementById('p_time').value || nowTimeStr(),
+        weight: Number(weight),
+        bodyFat: bodyFat===''? null : Number(bodyFat),
+        height: heightV===''? null : Number(heightV),
+        age: ageV===''? null : Number(ageV),
+        sex: sexV,
+        bmrMethod: methodV,
+        bmrValue: bmrValue,
+        note: document.getElementById('p_note').value.trim(),
+        createdAt: editing ? editing.createdAt : Date.now()
+      };
+      if(editing){
+        var idx = state.profiles.findIndex(function(x){return x.id===editing.id;});
+        state.profiles[idx] = obj;
+      } else {
+        state.profiles.push(obj);
+      }
+      saveProfiles();
+      renderProfile();
+      closeModal();
+      toast('已儲存');
+    };
+  }
+
+  function getRecentProfilesForDate(dateStr, n){
+    return state.profiles.filter(function(p){ return p.date <= dateStr; })
+      .sort(function(a,b){
+        var ka=a.date+' '+(a.time||''), kb=b.date+' '+(b.time||'');
+        return ka<kb?1:(ka>kb?-1:0);
+      }).slice(0, n||3);
+  }
+
   // ---------- History tab ----------
+  var weekOffset = 0;
+  function pad2(n){ return pad(n); }
+  function dateToStr(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+  function getWeekDates(offset){
+    var now = new Date();
+    var day = now.getDay(); // 0=Sun..6=Sat
+    var diffToMonday = (day===0 ? -6 : 1-day);
+    var monday = new Date(now.getFullYear(), now.getMonth(), now.getDate()+diffToMonday+offset*7);
+    var dates = [];
+    for(var i=0;i<7;i++){ dates.push(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate()+i)); }
+    return dates;
+  }
+  function fmtWeekRangeLabel(dates){
+    var a = dates[0], b = dates[6];
+    return (a.getMonth()+1)+'/'+a.getDate()+' - '+(b.getMonth()+1)+'/'+b.getDate();
+  }
+  function renderWeekStrip(){
+    var dates = getWeekDates(weekOffset);
+    var entryDates = {};
+    state.entries.forEach(function(e){ entryDates[e.date] = true; });
+    var todayS = todayStr();
+    var wdLabels = ['一','二','三','四','五','六','日'];
+    var atPresent = weekOffset >= 0;
+    var html = '<div class="week-nav">' +
+        '<button type="button" class="week-arrow" id="weekPrev">‹</button>' +
+        '<div class="week-range">'+fmtWeekRangeLabel(dates)+(weekOffset===0?'（本週）':'')+'</div>' +
+        '<button type="button" class="week-arrow'+(atPresent?' disabled':'')+'" id="weekNext"'+(atPresent?' disabled':'')+'>›</button>' +
+      '</div>' +
+      '<div class="week-strip" id="weekStripDays">' +
+        dates.map(function(d,i){
+          var ds = dateToStr(d);
+          var has = entryDates[ds];
+          var isToday = ds===todayS;
+          var isSel = ds===openHistoryDate;
+          var isFuture = ds > todayS;
+          return '<button type="button" class="day-chip'+(isSel?' sel':'')+(isToday?' is-today':'')+(isFuture?' future':'')+'" data-date="'+ds+'"'+(isFuture?' disabled':'')+'>' +
+            '<span class="dc-wd">'+wdLabels[i]+'</span><span class="dc-num">'+d.getDate()+'</span>'+(has?'<span class="dc-dot"></span>':'') +
+          '</button>';
+        }).join('') +
+      '</div>';
+    var area = document.getElementById('weekStripArea');
+    area.innerHTML = html;
+    document.getElementById('weekPrev').onclick = function(){ weekOffset--; renderWeekStrip(); };
+    if(!atPresent){
+      document.getElementById('weekNext').onclick = function(){ weekOffset = Math.min(weekOffset+1, 0); renderWeekStrip(); };
+    }
+    area.querySelectorAll('.day-chip:not(.future)').forEach(function(btn){
+      btn.onclick = function(){ App.toggleHistoryDate(btn.getAttribute('data-date')); };
+    });
+    // 手勢滑動切換週次（只能往過去滑，不能滑到未來週）
+    var stripEl = document.getElementById('weekStripDays');
+    var touchStartX = null;
+    stripEl.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
+    stripEl.addEventListener('touchend', function(e){
+      if(touchStartX===null) return;
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      if(Math.abs(dx) > 40){
+        weekOffset += (dx<0 ? 1 : -1);
+        weekOffset = Math.min(weekOffset, 0);
+        renderWeekStrip();
+      }
+      touchStartX = null;
+    }, {passive:true});
+  }
+  function renderSelectedDayDetail(){
+    var box = document.getElementById('selectedDayDetail');
+    if(!openHistoryDate){ box.innerHTML=''; return; }
+    var list = state.entries.filter(function(e){ return e.date===openHistoryDate; });
+    list.sort(function(a,b){ return mealOrder(a.mealType)-mealOrder(b.mealType); });
+    var kcal = sumTotal(list,'calories');
+    var html = '<div class="history-date"><div><div class="d-date">'+fmtDateLabel(openHistoryDate)+'</div><div class="d-info">'+list.length+' 筆紀錄</div></div><div class="d-info">'+fmtNum(kcal.total)+' kcal</div></div>';
+    if(list.length===0){
+      html += '<div class="empty-state" style="padding:24px 10px;">這天還沒有紀錄</div>';
+    } else {
+      html += '<button class="copy-btn ghost" onclick="App.copyDayText(\''+openHistoryDate+'\')">📋 複製這天紀錄</button>';
+      html += list.map(entryCardHtml).join('');
+    }
+    box.innerHTML = html;
+  }
   function renderHistory(){
     var el = document.getElementById('historyList');
     var dates = {};
@@ -480,11 +925,11 @@
     }
     el.innerHTML = dateList.map(function(d){
       var list = state.entries.filter(function(e){ return e.date===d; });
-      var kcal = sumField(list,'calories');
+      var kcal = sumTotal(list,'calories');
       var open = openHistoryDate === d;
       var html = '<div class="history-date" onclick="App.toggleHistoryDate(\''+d+'\')">' +
           '<div><div class="d-date">'+fmtDateLabel(d)+'</div><div class="d-info">'+list.length+' 筆紀錄</div></div>' +
-          '<div class="d-info">'+kcal.total+' kcal</div>' +
+          '<div class="d-info">'+fmtNum(kcal.total)+' kcal</div>' +
         '</div>';
       if(open){
         list.sort(function(a,b){ return mealOrder(a.mealType)-mealOrder(b.mealType); });
@@ -497,6 +942,7 @@
     }).join('');
   }
   var openHistoryDate = null;
+  function refreshHistoryViews(){ renderWeekStrip(); renderSelectedDayDetail(); renderHistory(); }
 
   // ---------- Day text generation ----------
   function generateDayText(dateStr){
@@ -507,25 +953,47 @@
     lines.push('');
     if(list.length===0){ lines.push('（這天沒有紀錄）'); }
     list.forEach(function(e){
-      lines.push('【'+e.mealType+'】'+e.source+' - '+(e.name||'未命名'));
+      var head = '【'+e.mealType+'】'+sourceLabel(e.source)+' - '+(e.name||'未命名');
+      if(e.storeName) head += '（'+e.storeName+'）';
+      lines.push(head);
+      if(e.portionMode==='ratio' && e.refAmount){
+        var act = (e.actualAmount!=null && e.actualAmount!=='') ? Number(e.actualAmount) : Number(e.refAmount);
+        lines.push('營養標示基準：每'+fmtNum(e.refAmount)+e.refUnit+'，本次攝取 '+fmtNum(act)+e.refUnit);
+      }
+      var kcalT=totalFor(e,'calories'), proT=totalFor(e,'protein'), carbT=totalFor(e,'carb'), fatT=totalFor(e,'fat');
       var macro = [];
-      if(e.calories!=='' && e.calories!=null) macro.push('熱量 '+e.calories+'kcal');
-      if(e.protein!=='' && e.protein!=null) macro.push('蛋白質 '+e.protein+'g');
-      if(e.carb!=='' && e.carb!=null) macro.push('碳水 '+e.carb+'g');
-      if(e.fat!=='' && e.fat!=null) macro.push('脂肪 '+e.fat+'g');
+      if(kcalT!==null) macro.push('熱量 '+fmtNum(kcalT)+'kcal');
+      if(proT!==null) macro.push('蛋白質 '+fmtNum(proT)+'g');
+      if(carbT!==null) macro.push('碳水 '+fmtNum(carbT)+'g');
+      if(fatT!==null) macro.push('脂肪 '+fmtNum(fatT)+'g');
       if(macro.length) lines.push(macro.join('｜'));
       else lines.push('（無營養標示資料'+(e.photo?'，已拍照存查':'')+'）');
       if(e.notes) lines.push('備註：'+e.notes);
       lines.push('');
     });
-    var kcal = sumField(list,'calories');
-    var protein = sumField(list,'protein');
-    var carb = sumField(list,'carb');
-    var fat = sumField(list,'fat');
+    var kcal = sumTotal(list,'calories');
+    var protein = sumTotal(list,'protein');
+    var carb = sumTotal(list,'carb');
+    var fat = sumTotal(list,'fat');
     lines.push('---');
-    lines.push('今日總計（僅計有數據的餐次）');
-    lines.push('熱量：'+kcal.total+' kcal（'+kcal.count+'/'+list.length+' 餐有記錄）');
-    lines.push('蛋白質：'+protein.total+'g｜碳水：'+carb.total+'g｜脂肪：'+fat.total+'g');
+    lines.push('當日總計（僅計有數據的餐次）');
+    lines.push('熱量：'+fmtNum(kcal.total)+' kcal（'+kcal.count+'/'+list.length+' 餐有記錄）');
+    lines.push('蛋白質：'+fmtNum(protein.total)+'g｜碳水：'+fmtNum(carb.total)+'g｜脂肪：'+fmtNum(fat.total)+'g');
+
+    var profiles = getRecentProfilesForDate(dateStr, 3);
+    if(profiles.length>0){
+      lines.push('');
+      lines.push('---');
+      lines.push('👤 身形參考（最新'+profiles.length+'筆，供評估用）');
+      profiles.forEach(function(p){
+        var seg = [];
+        if(p.weight!=null) seg.push('體重 '+fmtNum(p.weight)+'kg');
+        if(p.bodyFat!=null) seg.push('體脂 '+fmtNum(p.bodyFat)+'%');
+        if(p.bmrValue!=null) seg.push('BMR '+fmtNum(p.bmrValue)+'kcal('+(p.bmrMethod==='auto'?'自動估算':'手動輸入')+')');
+        lines.push(fmtDateLabel(p.date)+' '+(p.time||'')+'　'+seg.join('・'));
+      });
+      if(profiles[0].height!=null) lines.push('身高：'+fmtNum(profiles[0].height)+'cm');
+    }
     lines.push('');
     lines.push('請幫我依照這份紀錄，講評今天的飲食均衡程度，並給我明天的建議。');
     return lines.join('\n');
@@ -545,13 +1013,19 @@
     var mealType = editing ? editing.mealType : (opts.presetMealType || MEAL_TYPES[0]);
     var source = editing ? editing.source : SOURCE_TYPES[0];
     var date = editing ? editing.date : (opts.presetDate || todayStr());
+    var portionMode = editing ? (editing.portionMode||'total') : (opts.mode==='menu' ? 'ratio' : 'total');
 
     var root = document.getElementById('modalRoot');
     var isEntry = opts.mode === 'entry';
+
+    function val(field){ return editing && editing[field]!=null ? editing[field] : ''; }
+
     var html = '' +
       '<div class="overlay" id="entryOverlay">' +
         '<div class="sheet">' +
           '<h3>'+(editing? '編輯' : (isEntry? '新增今日紀錄' : '新增常用菜單'))+'</h3>' +
+          (isEntry && state.menu.length>0 ?
+            '<button type="button" class="pick-menu-btn" id="f_pickMenu">⭐ 從常用菜單挑選帶入</button>' : '') +
           (isEntry ? (
             '<div class="field"><label>日期</label><input type="date" id="f_date" value="'+date+'"></div>' +
             '<div class="field"><label>餐別</label><div class="pillrow" id="f_mealType">' +
@@ -561,23 +1035,62 @@
           '<div class="field"><label>來源</label><div class="pillrow" id="f_source">' +
             SOURCE_TYPES.map(function(s){ return '<button type="button" class="pill'+(s===source?' sel':'')+'" data-val="'+s+'">'+s+'</button>'; }).join('') +
           '</div></div>' +
-          '<div class="field"><label>品名 / 店家</label><input type="text" id="f_name" placeholder="例如：牛肉麵、御飯糰(鮭魚)" value="'+escapeHtml(editing?editing.name:'')+'"></div>' +
-          '<div class="field"><label>備註</label><textarea id="f_notes" placeholder="口味、份量、湯喝多少...">'+escapeHtml(editing?editing.notes:'')+'</textarea></div>' +
-          '<div class="grid2">' +
-            '<div class="field"><label>熱量 kcal</label><input type="number" inputmode="numeric" id="f_calories" value="'+(editing&&editing.calories!=null?editing.calories:'')+'"></div>' +
-            '<div class="field"><label>蛋白質 g</label><input type="number" inputmode="numeric" id="f_protein" value="'+(editing&&editing.protein!=null?editing.protein:'')+'"></div>' +
-            '<div class="field"><label>碳水 g</label><input type="number" inputmode="numeric" id="f_carb" value="'+(editing&&editing.carb!=null?editing.carb:'')+'"></div>' +
-            '<div class="field"><label>脂肪 g</label><input type="number" inputmode="numeric" id="f_fat" value="'+(editing&&editing.fat!=null?editing.fat:'')+'"></div>' +
+          '<div class="field" id="f_storeWrap" style="display:'+(showStore(source)?'block':'none')+';">' +
+            '<label>店家 / 品牌名稱（選填）</label><input type="text" id="f_storeName" placeholder="例如：7-ELEVEN、好市多、全聯、麥當勞" value="'+escapeHtml(val('storeName'))+'">' +
           '</div>' +
+          '<div class="field"><label>品名</label><input type="text" id="f_name" placeholder="例如：牛肉麵、無糖豆漿" value="'+escapeHtml(val('name'))+'"></div>' +
+          '<div class="field"><label>備註</label><textarea id="f_notes" placeholder="口味、湯喝多少...">'+escapeHtml(val('notes'))+'</textarea></div>' +
+
+          '<div class="field"><label>營養填寫方式</label><div class="pillrow" id="f_mode">' +
+            '<button type="button" class="pill'+(portionMode==='total'?' sel':'')+'" data-val="total">直接填總量</button>' +
+            '<button type="button" class="pill'+(portionMode==='ratio'?' sel':'')+'" data-val="ratio">依營養標示比例換算</button>' +
+          '</div></div>' +
+
+          '<div id="f_totalWrap" style="display:'+(portionMode==='total'?'block':'none')+';">' +
+            '<div class="mode-hint">'+(isEntry? '直接填寫「這一餐」實際吃下的總量。':'直接填寫這個品項固定的總量（例如一定份量的便當）。')+'</div>' +
+            '<div class="grid2">' +
+              '<div class="field"><label>熱量 kcal</label><input type="number" step="0.1" inputmode="decimal" id="f_totalCalories" value="'+val('totalCalories')+'"></div>' +
+              '<div class="field"><label>蛋白質 g</label><input type="number" step="0.1" inputmode="decimal" id="f_totalProtein" value="'+val('totalProtein')+'"></div>' +
+              '<div class="field"><label>碳水 g</label><input type="number" step="0.1" inputmode="decimal" id="f_totalCarb" value="'+val('totalCarb')+'"></div>' +
+              '<div class="field"><label>脂肪 g</label><input type="number" step="0.1" inputmode="decimal" id="f_totalFat" value="'+val('totalFat')+'"></div>' +
+            '</div>' +
+          '</div>' +
+
+          '<div id="f_ratioWrap" style="display:'+(portionMode==='ratio'?'block':'none')+';">' +
+            '<div class="mode-hint">先填「營養標示基準量」（例如豆漿包裝寫每100ml），'+(isEntry? '再填「本次實際攝取量」，會自動換算成這次吃下的總營養。':'常用菜單只需存基準量，實際吃多少之後加入時再填。')+'</div>' +
+            '<div class="grid2">' +
+              '<div class="field"><label>標示基準量</label><input type="number" step="0.1" inputmode="decimal" id="f_refAmount" value="'+val('refAmount')+'" placeholder="例如 100"></div>' +
+              '<div class="field"><label>單位</label><select id="f_refUnit">' +
+                UNIT_OPTIONS.map(function(u){ return '<option value="'+u+'"'+(val('refUnit')===u?' selected':'')+'>'+u+'</option>'; }).join('') +
+                '<option value="__custom__"'+(val('refUnit')&&UNIT_OPTIONS.indexOf(val('refUnit'))===-1?' selected':'')+'>自訂...</option>' +
+              '</select>' +
+              '<input type="text" id="f_refUnitCustom" placeholder="輸入自訂單位，例如：湯匙" style="margin-top:8px;display:'+(val('refUnit')&&UNIT_OPTIONS.indexOf(val('refUnit'))===-1?'block':'none')+';" value="'+(val('refUnit')&&UNIT_OPTIONS.indexOf(val('refUnit'))===-1?escapeHtml(val('refUnit')):'')+'">' +
+            '</div>' +
+            '</div>' +
+            '<div class="grid2">' +
+              '<div class="field"><label>熱量 kcal（每基準量）</label><input type="number" step="0.1" inputmode="decimal" id="f_calPerRef" value="'+val('caloriesPerRef')+'"></div>' +
+              '<div class="field"><label>蛋白質 g（每基準量）</label><input type="number" step="0.1" inputmode="decimal" id="f_proPerRef" value="'+val('proteinPerRef')+'"></div>' +
+              '<div class="field"><label>碳水 g（每基準量）</label><input type="number" step="0.1" inputmode="decimal" id="f_carbPerRef" value="'+val('carbPerRef')+'"></div>' +
+              '<div class="field"><label>脂肪 g（每基準量）</label><input type="number" step="0.1" inputmode="decimal" id="f_fatPerRef" value="'+val('fatPerRef')+'"></div>' +
+            '</div>' +
+            (isEntry ?
+              '<div class="field"><label>本次實際攝取量</label><input type="number" step="0.1" inputmode="decimal" id="f_actualAmount" value="'+(editing&&editing.actualAmount!=null?editing.actualAmount:val('refAmount'))+'"></div>' +
+              '<div class="live-total" id="f_liveTotal"></div>'
+            : '') +
+          '</div>' +
+
           '<div class="field">' +
             '<label>照片（可拍攝營養標示或餐點）</label>' +
             '<div class="file-row">' +
               '<label class="file-btn" for="f_photo">📷 拍照 / 選圖</label>' +
-              '<input type="file" id="f_photo" accept="image/*" capture="environment" style="display:none;">' +
+              '<input type="file" id="f_photo" accept="image/*" style="display:none;">' +
               '<button type="button" class="icon-btn" id="f_photoRemove" style="display:'+(draftPhoto?'inline-flex':'none')+';">✕</button>' +
             '</div>' +
             '<img id="f_photoPreview" class="photo-preview" style="display:'+(draftPhoto?'block':'none')+'" src="'+(draftPhoto||'')+'">' +
           '</div>' +
+          (isEntry ?
+            '<div class="checkbox-row"><input type="checkbox" id="f_saveToMenu"><label for="f_saveToMenu">同時存成常用菜單（下次可快速選取）</label></div>'
+          : '') +
           '<div class="sheet-actions">' +
             '<button class="btn-cancel" id="f_cancel">取消</button>' +
             '<button class="btn-save" id="f_save">儲存</button>' +
@@ -594,8 +1107,106 @@
     }
     var pillSource = document.getElementById('f_source');
     pillSource.querySelectorAll('.pill').forEach(function(btn){
-      btn.onclick = function(){ pillSource.querySelectorAll('.pill').forEach(function(b){b.classList.remove('sel');}); btn.classList.add('sel'); };
+      btn.onclick = function(){
+        pillSource.querySelectorAll('.pill').forEach(function(b){b.classList.remove('sel');});
+        btn.classList.add('sel');
+        document.getElementById('f_storeWrap').style.display = showStore(btn.getAttribute('data-val')) ? 'block' : 'none';
+      };
     });
+    var pillMode = document.getElementById('f_mode');
+    pillMode.querySelectorAll('.pill').forEach(function(btn){
+      btn.onclick = function(){
+        pillMode.querySelectorAll('.pill').forEach(function(b){b.classList.remove('sel');});
+        btn.classList.add('sel');
+        var m = btn.getAttribute('data-val');
+        document.getElementById('f_totalWrap').style.display = m==='total' ? 'block' : 'none';
+        document.getElementById('f_ratioWrap').style.display = m==='ratio' ? 'block' : 'none';
+      };
+    });
+
+    function getUnitValue(){
+      var sel = document.getElementById('f_refUnit');
+      if(!sel) return '';
+      return sel.value==='__custom__' ? (document.getElementById('f_refUnitCustom').value.trim()||'份') : sel.value;
+    }
+    function setUnitValue(u){
+      var sel = document.getElementById('f_refUnit');
+      var custom = document.getElementById('f_refUnitCustom');
+      var isPreset = UNIT_OPTIONS.indexOf(u) !== -1;
+      sel.value = isPreset ? u : '__custom__';
+      custom.style.display = isPreset ? 'none' : 'block';
+      custom.value = isPreset ? '' : (u||'');
+    }
+    var unitSelectEl = document.getElementById('f_refUnit');
+    if(unitSelectEl){
+      unitSelectEl.addEventListener('change', function(){
+        document.getElementById('f_refUnitCustom').style.display = this.value==='__custom__' ? 'block' : 'none';
+        if(isEntry) updateLiveTotal();
+      });
+    }
+
+    function updateLiveTotal(){
+      var box = document.getElementById('f_liveTotal');
+      if(!box) return;
+      var ref = parseFloat(document.getElementById('f_refAmount').value);
+      var act = parseFloat(document.getElementById('f_actualAmount').value);
+      var unit = getUnitValue();
+      if(isNaN(act)) act = ref;
+      var kcal = parseFloat(document.getElementById('f_calPerRef').value);
+      var pro = parseFloat(document.getElementById('f_proPerRef').value);
+      var carb = parseFloat(document.getElementById('f_carbPerRef').value);
+      var fat = parseFloat(document.getElementById('f_fatPerRef').value);
+      if(!ref || ref<=0){ box.innerHTML = '請先填標示基準量'; return; }
+      var ratio = act/ref;
+      var parts = [];
+      if(!isNaN(kcal)) parts.push('熱量 <b>'+fmtNum(kcal*ratio)+'</b> kcal');
+      if(!isNaN(pro)) parts.push('蛋白質 <b>'+fmtNum(pro*ratio)+'</b>g');
+      if(!isNaN(carb)) parts.push('碳水 <b>'+fmtNum(carb*ratio)+'</b>g');
+      if(!isNaN(fat)) parts.push('脂肪 <b>'+fmtNum(fat*ratio)+'</b>g');
+      box.innerHTML = parts.length ? ('本次（'+fmtNum(act)+unit+'）共攝取：'+parts.join('｜')) : '本次共攝取：尚未填寫營養資料';
+    }
+    if(isEntry){
+      ['f_refAmount','f_calPerRef','f_proPerRef','f_carbPerRef','f_fatPerRef','f_actualAmount','f_refUnitCustom'].forEach(function(id){
+        document.getElementById(id).addEventListener('input', updateLiveTotal);
+      });
+      updateLiveTotal();
+    }
+
+    if(isEntry && state.menu.length>0){
+      document.getElementById('f_pickMenu').onclick = function(){
+        openMenuPickerForEntry(function(m){
+          pillSource.querySelectorAll('.pill').forEach(function(b){ b.classList.toggle('sel', b.getAttribute('data-val')===m.source); });
+          document.getElementById('f_storeWrap').style.display = showStore(m.source) ? 'block' : 'none';
+          document.getElementById('f_storeName').value = m.storeName || '';
+          document.getElementById('f_name').value = m.name || '';
+          document.getElementById('f_notes').value = m.notes || '';
+
+          pillMode.querySelectorAll('.pill').forEach(function(b){ b.classList.toggle('sel', b.getAttribute('data-val')===m.portionMode); });
+          document.getElementById('f_totalWrap').style.display = m.portionMode==='total' ? 'block' : 'none';
+          document.getElementById('f_ratioWrap').style.display = m.portionMode==='ratio' ? 'block' : 'none';
+          if(m.portionMode==='total'){
+            document.getElementById('f_totalCalories').value = m.totalCalories!=null?m.totalCalories:'';
+            document.getElementById('f_totalProtein').value = m.totalProtein!=null?m.totalProtein:'';
+            document.getElementById('f_totalCarb').value = m.totalCarb!=null?m.totalCarb:'';
+            document.getElementById('f_totalFat').value = m.totalFat!=null?m.totalFat:'';
+          } else {
+            document.getElementById('f_refAmount').value = m.refAmount!=null?m.refAmount:'';
+            setUnitValue(m.refUnit||'份');
+            document.getElementById('f_calPerRef').value = m.caloriesPerRef!=null?m.caloriesPerRef:'';
+            document.getElementById('f_proPerRef').value = m.proteinPerRef!=null?m.proteinPerRef:'';
+            document.getElementById('f_carbPerRef').value = m.carbPerRef!=null?m.carbPerRef:'';
+            document.getElementById('f_fatPerRef').value = m.fatPerRef!=null?m.fatPerRef:'';
+            document.getElementById('f_actualAmount').value = m.refAmount!=null?m.refAmount:'';
+          }
+          draftPhoto = m.photo || null;
+          document.getElementById('f_photoPreview').src = draftPhoto || '';
+          document.getElementById('f_photoPreview').style.display = draftPhoto ? 'block' : 'none';
+          document.getElementById('f_photoRemove').style.display = draftPhoto ? 'inline-flex' : 'none';
+          updateLiveTotal();
+          toast('已帶入「'+(m.name||'')+'」，記得確認本次攝取量');
+        });
+      };
+    }
 
     document.getElementById('f_photo').onchange = function(e){
       var file = e.target.files[0];
@@ -619,27 +1230,46 @@
     document.getElementById('f_save').onclick = function(){
       var selMeal = isEntry ? pillMeal.querySelector('.pill.sel').getAttribute('data-val') : null;
       var selSource = pillSource.querySelector('.pill.sel').getAttribute('data-val');
+      var selMode = pillMode.querySelector('.pill.sel').getAttribute('data-val');
       var name = document.getElementById('f_name').value.trim();
       var notes = document.getElementById('f_notes').value.trim();
-      var calories = document.getElementById('f_calories').value;
-      var protein = document.getElementById('f_protein').value;
-      var carb = document.getElementById('f_carb').value;
-      var fat = document.getElementById('f_fat').value;
+      var storeName = showStore(selSource) ? document.getElementById('f_storeName').value.trim() : '';
       if(!name){ toast('請至少填寫品名'); return; }
 
       var obj = {
         id: editing ? editing.id : uid(),
         source: selSource,
+        storeName: storeName,
         name: name,
         notes: notes,
-        calories: calories===''? null : Number(calories),
-        protein: protein===''? null : Number(protein),
-        carb: carb===''? null : Number(carb),
-        fat: fat===''? null : Number(fat),
+        portionMode: selMode,
         photo: draftPhoto,
         createdAt: editing ? editing.createdAt : Date.now()
       };
+      if(selMode==='total'){
+        var tc=document.getElementById('f_totalCalories').value, tp=document.getElementById('f_totalProtein').value,
+            tcb=document.getElementById('f_totalCarb').value, tf=document.getElementById('f_totalFat').value;
+        obj.totalCalories = tc===''?null:Number(tc);
+        obj.totalProtein = tp===''?null:Number(tp);
+        obj.totalCarb = tcb===''?null:Number(tcb);
+        obj.totalFat = tf===''?null:Number(tf);
+      } else {
+        var ra=document.getElementById('f_refAmount').value, ru=getUnitValue();
+        var cpr=document.getElementById('f_calPerRef').value, ppr=document.getElementById('f_proPerRef').value,
+            cbpr=document.getElementById('f_carbPerRef').value, fpr=document.getElementById('f_fatPerRef').value;
+        obj.refAmount = ra===''?null:Number(ra);
+        obj.refUnit = ru || '份';
+        obj.caloriesPerRef = cpr===''?null:Number(cpr);
+        obj.proteinPerRef = ppr===''?null:Number(ppr);
+        obj.carbPerRef = cbpr===''?null:Number(cbpr);
+        obj.fatPerRef = fpr===''?null:Number(fpr);
+      }
+
       if(isEntry){
+        if(selMode==='ratio'){
+          var av = document.getElementById('f_actualAmount').value;
+          obj.actualAmount = av===''? obj.refAmount : Number(av);
+        }
         obj.date = document.getElementById('f_date').value || todayStr();
         obj.mealType = selMeal;
         if(editing){
@@ -649,7 +1279,24 @@
           state.entries.push(obj);
         }
         saveEntries();
-        renderLedger(); renderToday(); renderHistory();
+
+        if(document.getElementById('f_saveToMenu').checked){
+          var menuObj = {
+            id: uid(), source: obj.source, storeName: obj.storeName, name: obj.name,
+            notes: obj.notes, portionMode: obj.portionMode, photo: obj.photo, createdAt: Date.now()
+          };
+          if(obj.portionMode==='total'){
+            menuObj.totalCalories=obj.totalCalories; menuObj.totalProtein=obj.totalProtein;
+            menuObj.totalCarb=obj.totalCarb; menuObj.totalFat=obj.totalFat;
+          } else {
+            menuObj.refAmount=obj.refAmount; menuObj.refUnit=obj.refUnit;
+            menuObj.caloriesPerRef=obj.caloriesPerRef; menuObj.proteinPerRef=obj.proteinPerRef;
+            menuObj.carbPerRef=obj.carbPerRef; menuObj.fatPerRef=obj.fatPerRef;
+          }
+          state.menu.push(menuObj);
+          saveMenu();
+        }
+        renderLedger(); renderToday(); refreshHistoryViews(); renderMenu();
       } else {
         if(editing){
           var idx2 = state.menu.findIndex(function(x){return x.id===editing.id;});
@@ -667,19 +1314,69 @@
 
   function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
 
-  function openMealPicker(onPick){
+  function openMenuPickerForEntry(onPick){
+    var root = document.getElementById('pickerRoot');
+    var items = state.menu.slice().sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+    function closePicker(){ root.innerHTML=''; }
+    root.innerHTML = '' +
+      '<div class="picker-overlay" id="pkOverlay">' +
+        '<div class="picker-sheet">' +
+          '<h4>選擇常用菜單帶入</h4>' +
+          items.map(function(m){
+            var sub = sourceLabel(m.source) + (m.storeName? '・'+escapeHtml(m.storeName):'') + '・' + menuNutritionSummaryPlain(m);
+            return '<div class="picker-item"><div><div class="pi-name">'+escapeHtml(m.name||'（未命名）')+'</div><div class="pi-sub">'+sub+'</div></div><button type="button" data-id="'+m.id+'">選擇</button></div>';
+          }).join('') +
+          '<button class="picker-cancel" id="pkCancel">取消</button>' +
+        '</div>' +
+      '</div>';
+    root.querySelectorAll('.picker-item button').forEach(function(btn){
+      btn.onclick = function(){
+        var m = state.menu.find(function(x){ return x.id===btn.getAttribute('data-id'); });
+        closePicker();
+        if(m) onPick(m);
+      };
+    });
+    document.getElementById('pkCancel').onclick = closePicker;
+    document.getElementById('pkOverlay').onclick = function(e){ if(e.target.id==='pkOverlay') closePicker(); };
+  }
+  function menuNutritionSummaryPlain(m){
+    if(m.portionMode==='total') return m.totalCalories!=null ? (fmtNum(m.totalCalories)+' kcal') : '未填熱量';
+    return m.caloriesPerRef!=null ? (fmtNum(m.caloriesPerRef)+' kcal/'+fmtNum(m.refAmount)+(m.refUnit||'')) : '未填熱量';
+  }
+
+  function openMealPicker(menuItem, onPick){
     var root = document.getElementById('modalRoot');
+    var isRatio = menuItem.portionMode === 'ratio';
     root.innerHTML = '' +
       '<div class="mealpick-overlay" id="mpOverlay">' +
         '<div class="mealpick">' +
           '<h4>加入到今天的哪一餐？</h4>' +
-          '<div class="pillrow">' + MEAL_TYPES.map(function(m){ return '<button type="button" class="pill" data-val="'+m+'">'+m+'</button>'; }).join('') + '</div>' +
+          '<div class="pillrow" id="mpMeal">' + MEAL_TYPES.map(function(m){ return '<button type="button" class="pill" data-val="'+m+'">'+m+'</button>'; }).join('') + '</div>' +
+          (isRatio ?
+            '<div class="servings-field"><label>這次實際攝取量（標示基準：每'+fmtNum(menuItem.refAmount)+(menuItem.refUnit||'')+'）</label><input type="number" step="0.1" inputmode="decimal" id="mpAmount" value="'+menuItem.refAmount+'"></div>'
+          : '<div class="mode-hint" style="margin-bottom:14px;">這個項目是固定總量，加入後會直接使用原本的營養數值。</div>') +
+          '<button type="button" class="confirm-btn" id="mpConfirm">加入</button>' +
           '<button class="cancel" id="mpCancel">取消</button>' +
         '</div>' +
       '</div>';
-    root.querySelectorAll('.mealpick .pill').forEach(function(btn){
-      btn.onclick = function(){ closeModal(); onPick(btn.getAttribute('data-val')); };
+    var selectedMeal = null;
+    root.querySelectorAll('#mpMeal .pill').forEach(function(btn){
+      btn.onclick = function(){
+        root.querySelectorAll('#mpMeal .pill').forEach(function(b){b.classList.remove('sel');});
+        btn.classList.add('sel');
+        selectedMeal = btn.getAttribute('data-val');
+      };
     });
+    document.getElementById('mpConfirm').onclick = function(){
+      if(!selectedMeal){ toast('請選擇餐別'); return; }
+      var amount = null;
+      if(isRatio){
+        amount = parseFloat(document.getElementById('mpAmount').value);
+        if(isNaN(amount) || amount<=0) amount = menuItem.refAmount;
+      }
+      closeModal();
+      onPick(selectedMeal, amount);
+    };
     document.getElementById('mpCancel').onclick = closeModal;
     document.getElementById('mpOverlay').onclick = function(e){ if(e.target.id==='mpOverlay') closeModal(); };
   }
@@ -690,7 +1387,7 @@
     deleteEntry: function(id){
       if(!confirm('確定要刪除這筆紀錄嗎？')) return;
       state.entries = state.entries.filter(function(e){return e.id!==id;});
-      saveEntries(); renderLedger(); renderToday(); renderHistory();
+      saveEntries(); renderLedger(); renderToday(); refreshHistoryViews();
       toast('已刪除');
     },
     editMenuItem: function(id){ openEntryModal({mode:'menu', editId:id}); },
@@ -703,15 +1400,24 @@
     quickAddFromMenu: function(id){
       var m = state.menu.find(function(x){return x.id===id;});
       if(!m) return;
-      openMealPicker(function(mealType){
+      openMealPicker(m, function(mealType, amount){
         var obj = {
           id: uid(), date: todayStr(), mealType: mealType, source: m.source,
-          name: m.name, notes: m.notes, calories: m.calories, protein: m.protein,
-          carb: m.carb, fat: m.fat, photo: m.photo, createdAt: Date.now()
+          storeName: m.storeName, name: m.name, notes: m.notes, portionMode: m.portionMode,
+          photo: m.photo, createdAt: Date.now()
         };
+        if(m.portionMode==='total'){
+          obj.totalCalories=m.totalCalories; obj.totalProtein=m.totalProtein;
+          obj.totalCarb=m.totalCarb; obj.totalFat=m.totalFat;
+        } else {
+          obj.refAmount=m.refAmount; obj.refUnit=m.refUnit;
+          obj.caloriesPerRef=m.caloriesPerRef; obj.proteinPerRef=m.proteinPerRef;
+          obj.carbPerRef=m.carbPerRef; obj.fatPerRef=m.fatPerRef;
+          obj.actualAmount = amount;
+        }
         state.entries.push(obj);
         saveEntries();
-        renderLedger(); renderToday(); renderHistory();
+        renderLedger(); renderToday(); refreshHistoryViews();
         switchTab('today');
         toast('已加入今天的'+mealType);
       });
@@ -724,9 +1430,16 @@
     },
     toggleHistoryDate: function(d){
       openHistoryDate = (openHistoryDate===d) ? null : d;
-      renderHistory();
+      refreshHistoryViews();
     },
-    copyDayText: function(d){ copyText(generateDayText(d)); }
+    copyDayText: function(d){ copyText(generateDayText(d)); },
+    editProfile: function(id){ openProfileModal(id); },
+    deleteProfile: function(id){
+      if(!confirm('確定要刪除這筆身形紀錄嗎？')) return;
+      state.profiles = state.profiles.filter(function(p){return p.id!==id;});
+      saveProfiles(); renderProfile();
+      toast('已刪除');
+    }
   };
 
   // ---------- Tabs ----------
@@ -734,20 +1447,29 @@
     document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('tab-'+tab).classList.add('active');
     document.querySelectorAll('nav.tabbar button').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tab')===tab); });
-    document.getElementById('fabAdd').style.display = (tab==='today') ? 'flex' : (tab==='menu'? 'none' : 'none');
-    if(tab==='today') document.getElementById('fabAdd').style.display = 'flex';
-    else document.getElementById('fabAdd').style.display = 'none';
+    document.getElementById('fabAdd').style.display = (tab==='today' || tab==='profile') ? 'flex' : 'none';
   }
   document.querySelectorAll('nav.tabbar button').forEach(function(b){
     b.onclick = function(){ switchTab(b.getAttribute('data-tab')); };
   });
 
-  document.getElementById('fabAdd').onclick = function(){ openEntryModal({mode:'entry'}); };
+  document.getElementById('fabAdd').onclick = function(){
+    var activeBtn = document.querySelector('nav.tabbar button.active');
+    var tab = activeBtn ? activeBtn.getAttribute('data-tab') : 'today';
+    if(tab==='profile') openProfileModal(null);
+    else openEntryModal({mode:'entry'});
+  };
   document.getElementById('newMenuItemBtn').onclick = function(){ openEntryModal({mode:'menu'}); };
   document.getElementById('copyTodayBtn').onclick = function(){ copyText(generateDayText(todayStr())); };
+  document.getElementById('toggleFullHistoryBtn').onclick = function(){
+    var wrap = document.getElementById('fullHistoryWrap');
+    var showing = wrap.style.display !== 'none';
+    wrap.style.display = showing ? 'none' : 'block';
+    this.textContent = showing ? '📚 顯示完整歷史紀錄' : '📚 隱藏完整歷史紀錄';
+  };
 
   document.getElementById('exportBtn').onclick = function(){
-    var data = JSON.stringify({entries: state.entries, menu: state.menu, exportedAt: new Date().toISOString()}, null, 2);
+    var data = JSON.stringify({entries: state.entries, menu: state.menu, profiles: state.profiles, exportedAt: new Date().toISOString()}, null, 2);
     var blob = new Blob([data], {type:'application/json'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -766,8 +1488,10 @@
         if(!confirm('匯入將覆蓋目前手機上的資料，確定要繼續嗎？')) return;
         state.entries = data.entries || [];
         state.menu = data.menu || [];
-        saveEntries(); saveMenu();
-        renderLedger(); renderToday(); renderMenu(); renderHistory();
+        state.profiles = data.profiles || [];
+        saveEntries(); saveMenu(); saveProfiles();
+        migrateOldRecords();
+        renderLedger(); renderToday(); renderMenu(); refreshHistoryViews(); renderProfile();
         toast('匯入成功');
       }catch(err){ toast('檔案格式錯誤，匯入失敗'); }
     };
@@ -775,11 +1499,11 @@
     e.target.value = '';
   };
   document.getElementById('clearAllBtn').onclick = function(){
-    if(!confirm('確定要清空所有紀錄與常用菜單嗎？此動作無法復原！')) return;
+    if(!confirm('確定要清空所有紀錄、常用菜單與身形資料嗎？此動作無法復原！')) return;
     if(!confirm('再次確認：真的要全部刪除嗎？')) return;
-    state.entries = []; state.menu = [];
-    saveEntries(); saveMenu();
-    renderLedger(); renderToday(); renderMenu(); renderHistory();
+    state.entries = []; state.menu = []; state.profiles = [];
+    saveEntries(); saveMenu(); saveProfiles();
+    renderLedger(); renderToday(); renderMenu(); refreshHistoryViews(); renderProfile();
     toast('已清空');
   };
 
@@ -788,7 +1512,8 @@
   renderLedger();
   renderToday();
   renderMenu();
-  renderHistory();
+  renderProfile();
+  refreshHistoryViews();
 })();
 </script>
 </body>
