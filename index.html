@@ -63,6 +63,21 @@
     font-size:15px;color:var(--ink);font-weight:600;
   }
   .ledger-note{font-size:11px;color:var(--ink-soft);margin-top:4px;text-align:right;}
+  .ring-row{display:flex;justify-content:space-around;margin-bottom:10px;}
+  .ring-item{display:flex;flex-direction:column;align-items:center;}
+  .ring-label{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .ledger-toggle{
+    display:block;width:100%;text-align:center;background:none;border:none;
+    color:var(--green);font-size:12px;font-weight:600;padding:4px 0;
+  }
+  .ledger-detail{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);}
+  .preview-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .preview-head h3{margin:0;}
+  .preview-box{
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    max-height:50vh;overflow-y:auto;font-family:var(--font-mono);font-size:12px;
+    color:var(--ink);white-space:pre-wrap;line-height:1.7;
+  }
 
   main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 18px 100px;}
   .section{display:none;}
@@ -89,6 +104,7 @@
     font-family:var(--font-body);font-weight:600;margin-bottom:16px;
   }
   .copy-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);}
+  .copy-btn:disabled{background:var(--paper-alt);color:var(--ink-soft);opacity:0.7;}
 
   .card{
     background:var(--card);border:1px solid var(--line);border-radius:12px;
@@ -217,10 +233,12 @@
   .pillrow{display:flex;gap:8px;flex-wrap:wrap;}
   .pill{
     padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:#fff;
-    font-size:13px;color:var(--ink-soft);
+    font-size:13px;color:var(--ink-soft);font-family:var(--font-body);
+    -webkit-appearance:none;appearance:none;outline:none;
   }
-  .pill.sel{background:var(--green);color:#fff;border-color:var(--green);}
+  .pill.sel{background:var(--green);color:#fff;border-color:var(--green);font-weight:700;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .grid2 .field label{min-height:2.6em;display:block;}
   .photo-preview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;}
   .file-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .sheet-actions{display:flex;gap:10px;margin-top:8px;}
@@ -295,7 +313,7 @@
 <div id="app">
   <header>
     <div class="header-row">
-      <div class="app-title">飲食紀錄</div>
+      <div class="app-title" id="appTitle">今日紀錄</div>
     </div>
   </header>
 
@@ -303,7 +321,7 @@
     <section class="section active" id="tab-today">
       <div class="today-date" id="todayDateLabel"></div>
       <div class="ledger" id="ledgerToday"></div>
-      <button class="copy-btn" id="copyTodayBtn">📋 複製今日紀錄（貼給 AI 講評）</button>
+      <button class="copy-btn" id="copyTodayBtn">📝 產生今日紀錄（貼給 AI 講評）</button>
       <div id="todayList"></div>
     </section>
 
@@ -328,6 +346,38 @@
     </section>
 
     <section class="section" id="tab-settings">
+      <div class="settings-item">
+        <div class="label">👤 個人基本資料</div>
+        <div class="desc">用於計算基礎代謝與蛋白質／碳水建議攝取量，也方便複製紀錄給 AI 評估時附上身高與年齡。</div>
+        <div class="grid2">
+          <div class="field"><label>身高 cm</label><input type="number" step="0.1" inputmode="decimal" id="s_height"></div>
+          <div class="field"><label>生日</label><input type="date" id="s_birthday"></div>
+        </div>
+        <div class="field"><label>性別（計算基礎代謝用）</label><div class="pillrow" id="s_sex">
+          <button type="button" class="pill" data-val="男">男</button>
+          <button type="button" class="pill" data-val="女">女</button>
+        </div></div>
+        <div class="grid2">
+          <div class="field"><label>蛋白質係數 (g/kg 體重)</label><input type="number" step="0.1" inputmode="decimal" id="s_proteinCoef"></div>
+          <div class="field"><label>碳水係數 (g/kg 體重)</label><input type="number" step="0.1" inputmode="decimal" id="s_carbCoef"></div>
+        </div>
+        <div class="field"><label>日常活動量（計算 TDEE 用）</label>
+          <select id="s_activity">
+            <option value="1.2">久坐・幾乎不運動</option>
+            <option value="1.375">輕度活動・每週運動 1-3 天</option>
+            <option value="1.55">中度活動・每週運動 3-5 天</option>
+            <option value="1.725">高度活動・每週運動 6-7 天</option>
+            <option value="1.9">非常高強度・勞力工作或每日訓練</option>
+          </select>
+        </div>
+        <div class="field"><label>今日熱量目標基準</label><div class="pillrow" id="s_calorieBasis">
+          <button type="button" class="pill" data-val="tdee">TDEE（建議）</button>
+          <button type="button" class="pill" data-val="bmr">BMR</button>
+        </div></div>
+        <div class="mode-hint">BMR 是完全靜止時的最低消耗；TDEE＝BMR×活動係數，較貼近一天實際會消耗的熱量，用來對照飲食攝取通常更準確，因此預設用 TDEE。</div>
+        <div class="mode-hint" id="s_ageHint">尚未設定生日</div>
+        <button id="s_save">儲存個人資料</button>
+      </div>
       <div class="settings-item">
         <div class="label">📦 匯出備份</div>
         <div class="desc">把所有紀錄、常用菜單與身形資料存成一個 JSON 檔，建議定期匯出存到雲端硬碟，避免資料遺失。</div>
@@ -378,17 +428,32 @@
   var SOURCE_TYPES = ["外食","自煮","包裝食品"];
   var UNIT_OPTIONS = ["ml","g","份","顆","片","包","碗","匙"];
 
-  var state = { entries: [], menu: [], profiles: [] };
+  var DEFAULT_SETTINGS = { height:null, birthday:null, sex:'男', proteinCoef:1.6, carbCoef:4, activityFactor:1.375, calorieBasis:'tdee' };
+  var state = { entries: [], menu: [], profiles: [], settings: {} };
 
   function loadState(){
     try{ state.entries = JSON.parse(localStorage.getItem('ft_entries')||'[]'); }catch(e){ state.entries = []; }
     try{ state.menu = JSON.parse(localStorage.getItem('ft_menu')||'[]'); }catch(e){ state.menu = []; }
     try{ state.profiles = JSON.parse(localStorage.getItem('ft_profiles')||'[]'); }catch(e){ state.profiles = []; }
+    try{ state.settings = JSON.parse(localStorage.getItem('ft_settings')||'null') || Object.assign({}, DEFAULT_SETTINGS); }catch(e){ state.settings = Object.assign({}, DEFAULT_SETTINGS); }
+    for(var k in DEFAULT_SETTINGS){ if(state.settings[k]===undefined) state.settings[k] = DEFAULT_SETTINGS[k]; }
     migrateOldRecords();
   }
   function saveEntries(){ localStorage.setItem('ft_entries', JSON.stringify(state.entries)); }
   function saveMenu(){ localStorage.setItem('ft_menu', JSON.stringify(state.menu)); }
   function saveProfiles(){ localStorage.setItem('ft_profiles', JSON.stringify(state.profiles)); }
+  function saveSettings(){ localStorage.setItem('ft_settings', JSON.stringify(state.settings)); }
+
+  function calcAge(birthday, atDateStr){
+    if(!birthday) return null;
+    var at = atDateStr ? new Date(atDateStr) : new Date();
+    var b = new Date(birthday);
+    if(isNaN(b.getTime())) return null;
+    var age = at.getFullYear() - b.getFullYear();
+    var m = at.getMonth() - b.getMonth();
+    if(m<0 || (m===0 && at.getDate()<b.getDate())) age--;
+    return age>=0 ? age : null;
+  }
 
   // 把舊版資料格式轉換成新版(portionMode: total/ratio)，避免升級後舊紀錄消失
   function migrateOldRecords(){
@@ -536,6 +601,35 @@
   }
 
   // ---------- Ledger (header) ----------
+  // 取得「身形」頁最新一筆紀錄的 BMR 與體重，作為今日目標計算基準
+  function computeTargets(){
+    var list = sortedProfiles();
+    if(list.length===0) return null;
+    var latest = list[0];
+    var weight = latest.weight!=null ? Number(latest.weight) : null;
+    var bmr = latest.bmrValue!=null ? Number(latest.bmrValue) : null;
+    var s = state.settings || {};
+    var activityFactor = s.activityFactor!=null ? Number(s.activityFactor) : 1.375;
+    var tdee = (bmr!=null) ? Math.round(bmr*activityFactor) : null;
+    var basis = s.calorieBasis==='bmr' ? 'bmr' : 'tdee';
+    var calorieTarget = basis==='bmr' ? bmr : (tdee!=null ? tdee : bmr);
+    var proteinTarget = (weight!=null && s.proteinCoef!=null && s.proteinCoef!=='') ? weight*Number(s.proteinCoef) : null;
+    var carbTarget = (weight!=null && s.carbCoef!=null && s.carbCoef!=='') ? weight*Number(s.carbCoef) : null;
+    return { bmr:bmr, tdee:tdee, activityFactor:activityFactor, calorieBasis:basis, calorieTarget:calorieTarget, proteinTarget:proteinTarget, carbTarget:carbTarget };
+  }
+  function ringSvg(pct, colorVar, valueText){
+    if(pct===null || isNaN(pct)) pct = 0;
+    var pctClamped = Math.max(0, Math.min(100, pct));
+    var r = 30, c = 2*Math.PI*r;
+    var offset = c - (pctClamped/100)*c;
+    return '<svg width="72" height="72" viewBox="0 0 72 72">' +
+      '<circle cx="36" cy="36" r="'+r+'" fill="none" style="stroke:var(--paper-alt)" stroke-width="7"/>' +
+      '<circle cx="36" cy="36" r="'+r+'" fill="none" style="stroke:'+colorVar+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" transform="rotate(-90 36 36)"/>' +
+      '<text x="36" y="33" text-anchor="middle" font-size="14" font-weight="700" style="fill:var(--ink)">'+Math.round(pct)+'%</text>' +
+      '<text x="36" y="46" text-anchor="middle" font-size="8" style="fill:var(--ink-soft)">'+valueText+'</text>' +
+    '</svg>';
+  }
+  var ledgerExpanded = false;
   function renderLedger(){
     document.getElementById('todayDateLabel').textContent = fmtDateLabel(todayStr());
     var todays = state.entries.filter(function(e){ return e.date === todayStr(); });
@@ -543,13 +637,41 @@
     var protein = sumTotal(todays,'protein');
     var carb = sumTotal(todays,'carb');
     var fat = sumTotal(todays,'fat');
+    var targets = computeTargets();
+
+    var rings = [];
+    if(targets && targets.calorieTarget){
+      var basisLabel = targets.calorieBasis==='tdee' ? 'TDEE' : 'BMR';
+      rings.push({label:'熱量('+basisLabel+')', color:'var(--meal-am)', pct: kcal.total/targets.calorieTarget*100, valueText: fmtNum(kcal.total)+'/'+fmtNum(targets.calorieTarget)});
+    }
+    if(targets && targets.proteinTarget){
+      rings.push({label:'蛋白質', color:'var(--meal-noon)', pct: protein.total/targets.proteinTarget*100, valueText: fmtNum(protein.total)+'/'+fmtNum(targets.proteinTarget)});
+    }
+    if(targets && targets.carbTarget){
+      rings.push({label:'碳水', color:'var(--meal-pm)', pct: carb.total/targets.carbTarget*100, valueText: fmtNum(carb.total)+'/'+fmtNum(targets.carbTarget)});
+    }
+
     var html = '';
-    html += '<div class="ledger-row"><span>蛋白質</span><span>'+fmtNum(protein.total)+' g</span></div>';
-    html += '<div class="ledger-row"><span>碳水</span><span>'+fmtNum(carb.total)+' g</span></div>';
+    if(rings.length){
+      html += '<div class="ring-row">' + rings.map(function(r){
+        return '<div class="ring-item">'+ ringSvg(r.pct, r.color, r.valueText) +'<div class="ring-label">'+r.label+'</div></div>';
+      }).join('') + '</div>';
+    } else {
+      html += '<div class="ledger-note" style="text-align:left;margin:0 0 10px;">尚無基礎代謝／體重資料，請至「身形」與「設定」頁補充後即可顯示今日目標進度。</div>';
+    }
+    html += '<button type="button" class="ledger-toggle" id="ledgerToggleBtn">'+(ledgerExpanded?'▲ 隱藏詳細數字':'▼ 顯示詳細數字')+'</button>';
+    html += '<div class="ledger-detail" id="ledgerDetail" style="display:'+(ledgerExpanded?'block':'none')+';">';
+    html += '<div class="ledger-row"><span>蛋白質</span><span>'+fmtNum(protein.total)+' g'+(targets&&targets.proteinTarget?'（目標 '+fmtNum(targets.proteinTarget)+' g）':'')+'</span></div>';
+    html += '<div class="ledger-row"><span>碳水</span><span>'+fmtNum(carb.total)+' g'+(targets&&targets.carbTarget?'（目標 '+fmtNum(targets.carbTarget)+' g）':'')+'</span></div>';
     html += '<div class="ledger-row"><span>脂肪</span><span>'+fmtNum(fat.total)+' g</span></div>';
-    html += '<div class="ledger-row total"><span>今日熱量</span><span>'+fmtNum(kcal.total)+' kcal</span></div>';
+    html += '<div class="ledger-row total"><span>今日熱量</span><span>'+fmtNum(kcal.total)+' kcal'+(targets&&targets.calorieTarget?'（目標 '+fmtNum(targets.calorieTarget)+' kcal・'+(targets.calorieBasis==='tdee'?'TDEE':'BMR')+'）':'')+'</span></div>';
     html += '<div class="ledger-note">共 '+todays.length+' 筆紀錄，'+kcal.count+' 筆有熱量資料</div>';
+    html += '</div>';
     document.getElementById('ledgerToday').innerHTML = html;
+    var toggleBtn = document.getElementById('ledgerToggleBtn');
+    if(toggleBtn){
+      toggleBtn.onclick = function(){ ledgerExpanded = !ledgerExpanded; renderLedger(); };
+    }
   }
 
   // ---------- Today tab ----------
@@ -557,6 +679,8 @@
     var list = state.entries.filter(function(e){ return e.date === todayStr(); });
     list.sort(function(a,b){ return mealOrder(a.mealType)-mealOrder(b.mealType) || (a.createdAt-b.createdAt); });
     var el = document.getElementById('todayList');
+    var genBtn = document.getElementById('copyTodayBtn');
+    if(genBtn) genBtn.disabled = list.length===0;
     if(list.length===0){
       el.innerHTML = '<div class="empty-state"><span class="big">🍽️</span>今天還沒有紀錄<br>點右下角「＋」開始記錄第一餐吧</div>';
       return;
@@ -691,7 +815,7 @@
       '<div class="profile-grid">' +
         '<div class="profile-stat"><div class="ps-label">體重</div><div class="ps-value">'+(latest.weight!=null?fmtNum(latest.weight)+' kg':'—')+profileDelta(latest,prev,'weight')+'</div></div>' +
         '<div class="profile-stat"><div class="ps-label">體脂</div><div class="ps-value">'+(latest.bodyFat!=null?fmtNum(latest.bodyFat)+' %':'—')+profileDelta(latest,prev,'bodyFat')+'</div></div>' +
-        '<div class="profile-stat"><div class="ps-label">身高</div><div class="ps-value">'+(latest.height!=null?fmtNum(latest.height)+' cm':'—')+'</div></div>' +
+        '<div class="profile-stat"><div class="ps-label">身高</div><div class="ps-value">'+(state.settings.height!=null?fmtNum(state.settings.height)+' cm':'—（設定頁填寫）')+'</div></div>' +
         '<div class="profile-stat"><div class="ps-label">基礎代謝</div><div class="ps-value">'+(latest.bmrValue!=null?fmtNum(latest.bmrValue)+' kcal':'—')+'<span class="method-tag">'+(latest.bmrMethod==='auto'?'自動':'手動')+'</span></div></div>' +
       '</div>';
     document.getElementById('profileList').innerHTML = list.map(function(p, idx){ return profileCardHtml(p, list[idx+1]); }).join('');
@@ -715,12 +839,9 @@
 
   function openProfileModal(editId){
     var editing = editId ? state.profiles.find(function(x){return x.id===editId;}) : null;
-    var list = sortedProfiles();
-    var latest = list[0];
-    var height = editing ? editing.height : (latest? latest.height : '');
-    var age = editing ? editing.age : (latest? latest.age : '');
-    var sex = editing ? editing.sex : (latest? latest.sex : '男');
     var bmrMethod = editing ? (editing.bmrMethod||'auto') : 'auto';
+    var s = state.settings || {};
+    var hasBasics = s.height!=null && s.birthday;
 
     var root = document.getElementById('modalRoot');
     root.innerHTML = '' +
@@ -735,19 +856,13 @@
             '<div class="field"><label>體重 kg</label><input type="number" step="0.1" inputmode="decimal" id="p_weight" value="'+(editing&&editing.weight!=null?editing.weight:'')+'"></div>' +
             '<div class="field"><label>體脂 %（選填）</label><input type="number" step="0.1" inputmode="decimal" id="p_bodyfat" value="'+(editing&&editing.bodyFat!=null?editing.bodyFat:'')+'"></div>' +
           '</div>' +
-          '<div class="grid2">' +
-            '<div class="field"><label>身高 cm</label><input type="number" step="0.1" inputmode="decimal" id="p_height" value="'+height+'"></div>' +
-            '<div class="field"><label>年齡</label><input type="number" step="1" inputmode="numeric" id="p_age" value="'+age+'"></div>' +
-          '</div>' +
-          '<div class="field"><label>性別（計算基礎代謝用）</label><div class="pillrow" id="p_sex">' +
-            ['男','女'].map(function(s){ return '<button type="button" class="pill'+(s===sex?' sel':'')+'" data-val="'+s+'">'+s+'</button>'; }).join('') +
-          '</div></div>' +
+          '<div class="mode-hint">身高／年齡／性別已改為在「設定」頁統一管理，計算 BMR 時會自動帶入。</div>' +
           '<div class="field"><label>基礎代謝率(BMR)取得方式</label><div class="pillrow" id="p_bmrMethod">' +
             '<button type="button" class="pill'+(bmrMethod==='auto'?' sel':'')+'" data-val="auto">自動估算</button>' +
             '<button type="button" class="pill'+(bmrMethod==='manual'?' sel':'')+'" data-val="manual">手動輸入</button>' +
           '</div></div>' +
           '<div class="field" id="p_bmrAutoWrap" style="display:'+(bmrMethod==='auto'?'block':'none')+';">' +
-            '<div class="live-total" id="p_bmrAutoBox">請先填體重／身高／年齡／性別</div>' +
+            '<div class="live-total" id="p_bmrAutoBox">請先填體重</div>' +
           '</div>' +
           '<div class="field" id="p_bmrManualWrap" style="display:'+(bmrMethod==='manual'?'block':'none')+';">' +
             '<label>BMR（kcal，來自體脂機或健檢報告）</label><input type="number" step="1" inputmode="numeric" id="p_bmrManual" value="'+(editing&&editing.bmrMethod==='manual'&&editing.bmrValue!=null?editing.bmrValue:'')+'">' +
@@ -760,10 +875,6 @@
         '</div>' +
       '</div>';
 
-    var pillSex = document.getElementById('p_sex');
-    pillSex.querySelectorAll('.pill').forEach(function(btn){
-      btn.onclick = function(){ pillSex.querySelectorAll('.pill').forEach(function(b){b.classList.remove('sel');}); btn.classList.add('sel'); updateBmrAuto(); };
-    });
     var pillMethod = document.getElementById('p_bmrMethod');
     pillMethod.querySelectorAll('.pill').forEach(function(btn){
       btn.onclick = function(){
@@ -772,17 +883,22 @@
         var m = btn.getAttribute('data-val');
         document.getElementById('p_bmrAutoWrap').style.display = m==='auto' ? 'block' : 'none';
         document.getElementById('p_bmrManualWrap').style.display = m==='manual' ? 'block' : 'none';
+        updateBmrAuto();
       };
     });
     function updateBmrAuto(){
+      var box = document.getElementById('p_bmrAutoBox');
+      if(!hasBasics){ box.innerHTML = '請先到「設定」頁填寫身高與生日'; return; }
       var w = parseFloat(document.getElementById('p_weight').value);
-      var h = parseFloat(document.getElementById('p_height').value);
-      var a = parseFloat(document.getElementById('p_age').value);
-      var s = pillSex.querySelector('.pill.sel').getAttribute('data-val');
-      var bmr = computeBMR(w,h,a,s);
-      document.getElementById('p_bmrAutoBox').innerHTML = bmr!=null ? ('估算 BMR：<b>'+bmr+'</b> kcal／天（Mifflin-St Jeor 公式）') : '請先填體重／身高／年齡／性別';
+      var dateV = document.getElementById('p_date').value || todayStr();
+      var age = calcAge(s.birthday, dateV);
+      var bmr = computeBMR(w, s.height, age, s.sex);
+      box.innerHTML = bmr!=null ? ('估算 BMR：<b>'+bmr+'</b> kcal／天（Mifflin-St Jeor 公式，身高'+fmtNum(s.height)+'cm・'+age+'歲・'+s.sex+'）') : '請先填體重';
     }
-    ['p_weight','p_height','p_age'].forEach(function(id){ document.getElementById(id).addEventListener('input', updateBmrAuto); });
+    ['p_weight','p_date'].forEach(function(id){
+      document.getElementById(id).addEventListener('input', updateBmrAuto);
+      document.getElementById(id).addEventListener('change', updateBmrAuto);
+    });
     updateBmrAuto();
 
     document.getElementById('p_cancel').onclick = closeModal;
@@ -790,24 +906,21 @@
     document.getElementById('p_save').onclick = function(){
       var weight = document.getElementById('p_weight').value;
       var bodyFat = document.getElementById('p_bodyfat').value;
-      var heightV = document.getElementById('p_height').value;
-      var ageV = document.getElementById('p_age').value;
-      var sexV = pillSex.querySelector('.pill.sel').getAttribute('data-val');
+      var dateV = document.getElementById('p_date').value || todayStr();
       var methodV = pillMethod.querySelector('.pill.sel').getAttribute('data-val');
       if(weight===''){ toast('請至少填寫體重'); return; }
       var bmrValue = null;
-      if(methodV==='auto'){ bmrValue = computeBMR(parseFloat(weight),parseFloat(heightV),parseFloat(ageV),sexV); }
-      else { var mv = document.getElementById('p_bmrManual').value; bmrValue = mv===''? null : Number(mv); }
+      if(methodV==='auto'){
+        var age = calcAge(s.birthday, dateV);
+        bmrValue = computeBMR(parseFloat(weight), s.height, age, s.sex);
+      } else { var mv = document.getElementById('p_bmrManual').value; bmrValue = mv===''? null : Number(mv); }
 
       var obj = {
         id: editing ? editing.id : uid(),
-        date: document.getElementById('p_date').value || todayStr(),
+        date: dateV,
         time: document.getElementById('p_time').value || nowTimeStr(),
         weight: Number(weight),
         bodyFat: bodyFat===''? null : Number(bodyFat),
-        height: heightV===''? null : Number(heightV),
-        age: ageV===''? null : Number(ageV),
-        sex: sexV,
         bmrMethod: methodV,
         bmrValue: bmrValue,
         note: document.getElementById('p_note').value.trim(),
@@ -821,6 +934,7 @@
       }
       saveProfiles();
       renderProfile();
+      renderLedger();
       closeModal();
       toast('已儲存');
     };
@@ -909,7 +1023,7 @@
     if(list.length===0){
       html += '<div class="empty-state" style="padding:24px 10px;">這天還沒有紀錄</div>';
     } else {
-      html += '<button class="copy-btn ghost" onclick="App.copyDayText(\''+openHistoryDate+'\')">📋 複製這天紀錄</button>';
+      html += '<button class="copy-btn ghost" onclick="App.previewDayText(\''+openHistoryDate+'\')">📝 產生這天紀錄</button>';
       html += list.map(entryCardHtml).join('');
     }
     box.innerHTML = html;
@@ -934,7 +1048,7 @@
       if(open){
         list.sort(function(a,b){ return mealOrder(a.mealType)-mealOrder(b.mealType); });
         html += '<div class="history-detail">' +
-          '<button class="copy-btn ghost" onclick="App.copyDayText(\''+d+'\')">📋 複製這天紀錄</button>' +
+          '<button class="copy-btn ghost" onclick="App.previewDayText(\''+d+'\')">📝 產生這天紀錄</button>' +
           list.map(entryCardHtml).join('') +
         '</div>';
       }
@@ -975,16 +1089,29 @@
     var protein = sumTotal(list,'protein');
     var carb = sumTotal(list,'carb');
     var fat = sumTotal(list,'fat');
+    var targets = computeTargets();
     lines.push('---');
     lines.push('當日總計（僅計有數據的餐次）');
-    lines.push('熱量：'+fmtNum(kcal.total)+' kcal（'+kcal.count+'/'+list.length+' 餐有記錄）');
-    lines.push('蛋白質：'+fmtNum(protein.total)+'g｜碳水：'+fmtNum(carb.total)+'g｜脂肪：'+fmtNum(fat.total)+'g');
+    lines.push('熱量：'+fmtNum(kcal.total)+' kcal（'+kcal.count+'/'+list.length+' 餐有記錄）'+(targets&&targets.calorieTarget?'　目標 '+fmtNum(targets.calorieTarget)+' kcal（'+(targets.calorieBasis==='tdee'?'TDEE':'BMR')+'，'+Math.round(kcal.total/targets.calorieTarget*100)+'%）':''));
+    lines.push('蛋白質：'+fmtNum(protein.total)+'g'+(targets&&targets.proteinTarget?'（目標 '+fmtNum(targets.proteinTarget)+'g，'+Math.round(protein.total/targets.proteinTarget*100)+'%）':'')+
+      '｜碳水：'+fmtNum(carb.total)+'g'+(targets&&targets.carbTarget?'（目標 '+fmtNum(targets.carbTarget)+'g，'+Math.round(carb.total/targets.carbTarget*100)+'%）':'')+
+      '｜脂肪：'+fmtNum(fat.total)+'g');
+    if(targets && targets.bmr){
+      lines.push('BMR：'+fmtNum(targets.bmr)+' kcal'+(targets.tdee!=null?'｜TDEE：'+fmtNum(targets.tdee)+' kcal（活動係數 '+fmtNum(targets.activityFactor)+'）':''));
+    }
+
+    var s = state.settings || {};
+    var ageAtDate = calcAge(s.birthday, dateStr);
+    if(s.height!=null || ageAtDate!=null){
+      lines.push('');
+      lines.push('👤 身高：'+(s.height!=null?fmtNum(s.height)+'cm':'未填')+'｜年齡：'+(ageAtDate!=null?ageAtDate+'歲':'未填')+(s.sex?'｜性別：'+s.sex:''));
+    }
 
     var profiles = getRecentProfilesForDate(dateStr, 3);
     if(profiles.length>0){
       lines.push('');
       lines.push('---');
-      lines.push('👤 身形參考（最新'+profiles.length+'筆，供評估用）');
+      lines.push('身形參考（最新'+profiles.length+'筆，供評估用）');
       profiles.forEach(function(p){
         var seg = [];
         if(p.weight!=null) seg.push('體重 '+fmtNum(p.weight)+'kg');
@@ -992,7 +1119,6 @@
         if(p.bmrValue!=null) seg.push('BMR '+fmtNum(p.bmrValue)+'kcal('+(p.bmrMethod==='auto'?'自動估算':'手動輸入')+')');
         lines.push(fmtDateLabel(p.date)+' '+(p.time||'')+'　'+seg.join('・'));
       });
-      if(profiles[0].height!=null) lines.push('身高：'+fmtNum(profiles[0].height)+'cm');
     }
     lines.push('');
     lines.push('請幫我依照這份紀錄，講評今天的飲食均衡程度，並給我明天的建議。');
@@ -1314,6 +1440,23 @@
 
   function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
 
+  function openPreviewModal(dateStr){
+    var text = generateDayText(dateStr);
+    var title = (dateStr===todayStr()) ? '今日紀錄預覽' : (fmtDateLabel(dateStr)+' 紀錄預覽');
+    var root = document.getElementById('modalRoot');
+    root.innerHTML = '' +
+      '<div class="overlay" id="previewOverlay">' +
+        '<div class="sheet">' +
+          '<div class="preview-head"><h3>'+title+'</h3><button class="icon-btn" id="previewClose">✕</button></div>' +
+          '<button class="copy-btn" id="previewCopyBtn">📋 複製全部內容</button>' +
+          '<div class="preview-box">'+escapeHtml(text)+'</div>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('previewClose').onclick = closeModal;
+    document.getElementById('previewOverlay').onclick = function(e){ if(e.target.id==='previewOverlay') closeModal(); };
+    document.getElementById('previewCopyBtn').onclick = function(){ copyText(text); };
+  }
+
   function openMenuPickerForEntry(onPick){
     var root = document.getElementById('pickerRoot');
     var items = state.menu.slice().sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
@@ -1432,7 +1575,7 @@
       openHistoryDate = (openHistoryDate===d) ? null : d;
       refreshHistoryViews();
     },
-    copyDayText: function(d){ copyText(generateDayText(d)); },
+    previewDayText: function(d){ openPreviewModal(d); },
     editProfile: function(id){ openProfileModal(id); },
     deleteProfile: function(id){
       if(!confirm('確定要刪除這筆身形紀錄嗎？')) return;
@@ -1443,11 +1586,13 @@
   };
 
   // ---------- Tabs ----------
+  var TAB_TITLES = { today:'今日紀錄', menu:'常用菜單', profile:'身形紀錄', history:'歷史紀錄', settings:'設定' };
   function switchTab(tab){
     document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('tab-'+tab).classList.add('active');
     document.querySelectorAll('nav.tabbar button').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tab')===tab); });
     document.getElementById('fabAdd').style.display = (tab==='today' || tab==='profile') ? 'flex' : 'none';
+    document.getElementById('appTitle').textContent = TAB_TITLES[tab] || '飲食紀錄';
   }
   document.querySelectorAll('nav.tabbar button').forEach(function(b){
     b.onclick = function(){ switchTab(b.getAttribute('data-tab')); };
@@ -1460,7 +1605,7 @@
     else openEntryModal({mode:'entry'});
   };
   document.getElementById('newMenuItemBtn').onclick = function(){ openEntryModal({mode:'menu'}); };
-  document.getElementById('copyTodayBtn').onclick = function(){ copyText(generateDayText(todayStr())); };
+  document.getElementById('copyTodayBtn').onclick = function(){ openPreviewModal(todayStr()); };
   document.getElementById('toggleFullHistoryBtn').onclick = function(){
     var wrap = document.getElementById('fullHistoryWrap');
     var showing = wrap.style.display !== 'none';
@@ -1469,7 +1614,7 @@
   };
 
   document.getElementById('exportBtn').onclick = function(){
-    var data = JSON.stringify({entries: state.entries, menu: state.menu, profiles: state.profiles, exportedAt: new Date().toISOString()}, null, 2);
+    var data = JSON.stringify({entries: state.entries, menu: state.menu, profiles: state.profiles, settings: state.settings, exportedAt: new Date().toISOString()}, null, 2);
     var blob = new Blob([data], {type:'application/json'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -1489,9 +1634,10 @@
         state.entries = data.entries || [];
         state.menu = data.menu || [];
         state.profiles = data.profiles || [];
-        saveEntries(); saveMenu(); saveProfiles();
+        state.settings = Object.assign({}, DEFAULT_SETTINGS, data.settings || {});
+        saveEntries(); saveMenu(); saveProfiles(); saveSettings();
         migrateOldRecords();
-        renderLedger(); renderToday(); renderMenu(); refreshHistoryViews(); renderProfile();
+        renderLedger(); renderToday(); renderMenu(); refreshHistoryViews(); renderProfile(); renderSettingsPersonal();
         toast('匯入成功');
       }catch(err){ toast('檔案格式錯誤，匯入失敗'); }
     };
@@ -1507,8 +1653,72 @@
     toast('已清空');
   };
 
+  // ---------- Settings: personal info ----------
+  function renderSettingsPersonal(){
+    var s = state.settings;
+    document.getElementById('s_height').value = s.height!=null ? s.height : '';
+    document.getElementById('s_birthday').value = s.birthday || '';
+    document.getElementById('s_proteinCoef').value = s.proteinCoef!=null ? s.proteinCoef : '';
+    document.getElementById('s_carbCoef').value = s.carbCoef!=null ? s.carbCoef : '';
+    document.getElementById('s_activity').value = s.activityFactor!=null ? s.activityFactor : '1.375';
+    setPillSelection('s_sex', s.sex||'男');
+    setPillSelection('s_calorieBasis', s.calorieBasis||'tdee');
+    updateAgeHint();
+  }
+  function setPillSelection(rowId, val){
+    var row = document.getElementById(rowId);
+    if(!row) return;
+    row.querySelectorAll('.pill').forEach(function(btn){
+      btn.classList.toggle('sel', btn.getAttribute('data-val')===val);
+    });
+  }
+  function bindPillRow(rowId){
+    var row = document.getElementById(rowId);
+    if(!row) return;
+    row.addEventListener('click', function(e){
+      var btn = e.target.closest ? e.target.closest('.pill') : null;
+      if(!btn || !row.contains(btn)) return;
+      row.querySelectorAll('.pill').forEach(function(b){ b.classList.remove('sel'); });
+      btn.classList.add('sel');
+    });
+  }
+  function updateAgeHint(){
+    var b = document.getElementById('s_birthday').value;
+    var hint = document.getElementById('s_ageHint');
+    if(!b){ hint.textContent = '尚未設定生日'; return; }
+    var age = calcAge(b, todayStr());
+    hint.textContent = age!=null ? ('目前年齡：'+age+' 歲（依生日自動計算）') : '生日格式有誤';
+  }
+  document.getElementById('s_birthday').addEventListener('input', updateAgeHint);
+  bindPillRow('s_sex');
+  bindPillRow('s_calorieBasis');
+  document.getElementById('s_save').onclick = function(){
+    var heightV = document.getElementById('s_height').value;
+    var birthdayV = document.getElementById('s_birthday').value;
+    var sexSel = document.getElementById('s_sex').querySelector('.pill.sel');
+    var basisSel = document.getElementById('s_calorieBasis').querySelector('.pill.sel');
+    var proteinV = document.getElementById('s_proteinCoef').value;
+    var carbV = document.getElementById('s_carbCoef').value;
+    var activityV = document.getElementById('s_activity').value;
+    state.settings = {
+      height: heightV===''? null : Number(heightV),
+      birthday: birthdayV || null,
+      sex: sexSel ? sexSel.getAttribute('data-val') : '男',
+      proteinCoef: proteinV===''? null : Number(proteinV),
+      carbCoef: carbV===''? null : Number(carbV),
+      activityFactor: activityV ? Number(activityV) : 1.375,
+      calorieBasis: basisSel ? basisSel.getAttribute('data-val') : 'tdee'
+    };
+    saveSettings();
+    updateAgeHint();
+    renderLedger();
+    renderProfile();
+    toast('個人資料已儲存');
+  };
+
   // ---------- Init ----------
   loadState();
+  renderSettingsPersonal();
   renderLedger();
   renderToday();
   renderMenu();
